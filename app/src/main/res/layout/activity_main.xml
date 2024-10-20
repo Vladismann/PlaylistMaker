@@ -17,7 +17,7 @@
             android:layout_marginStart="@dimen/default_margin"
             android:text="@string/app_name"
             android:textColor="@color/white"
-            android:textSize="@dimen/main_text_size"
+            android:textSize="@dimen/default_text_size"
             android:layout_marginTop="10dp"/>
 
     </FrameLayout>
@@ -39,8 +39,8 @@
             app:cornerRadius="@dimen/default_radius"
             android:text="@string/search"
             android:textColor="@color/black"
-            android:textSize="@dimen/main_text_size"
-            app:icon="@drawable/search"
+            android:textSize="@dimen/default_text_size"
+            app:icon="@drawable/search_svg"
             app:iconGravity="textStart"
             app:iconTint="@color/black"/>
 
@@ -53,8 +53,8 @@
             app:cornerRadius="@dimen/default_radius"
             android:text="@string/media"
             android:textColor="@color/black"
-            android:textSize="@dimen/main_text_size"
-            app:icon="@drawable/media"
+            android:textSize="@dimen/default_text_size"
+            app:icon="@drawable/media_svg"
             app:iconGravity="textStart"
             app:iconTint="@color/black"/>
 
@@ -67,8 +67,8 @@
             app:cornerRadius="@dimen/default_radius"
             android:text="@string/settings"
             android:textColor="@color/black"
-            android:textSize="@dimen/main_text_size"
-            app:icon="@drawable/settings"
+            android:textSize="@dimen/default_text_size"
+            app:icon="@drawable/settings_svg"
             app:iconGravity="textStart"
             app:iconTint="@color/black"/>
 
