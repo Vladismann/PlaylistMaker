@@ -1,8 +1,8 @@
 package com.example.playlistmaker
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -10,20 +10,23 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-         fun showToast(message: String) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-        }
-
         val buttonSearch = findViewById<Button>(R.id.search)
         val buttonMedia = findViewById<Button>(R.id.media)
         val buttonSettings = findViewById<Button>(R.id.settings)
 
-        val buttons = listOf(buttonSearch, buttonMedia, buttonSettings)
+        buttonSettings.setOnClickListener {
+            val displayIntent = Intent(this, SettingsActivity::class.java)
+            startActivity(displayIntent)
+        }
 
-        buttons.forEach { button ->
-            button.setOnClickListener {
-                showToast("Кнопка нажата")
-            }
+        buttonSearch.setOnClickListener {
+            val displayIntent = Intent(this, SearchActivity::class.java)
+            startActivity(displayIntent)
+        }
+
+        buttonMedia.setOnClickListener {
+            val displayIntent = Intent(this, MediaActivity::class.java)
+            startActivity(displayIntent)
         }
     }
 }
