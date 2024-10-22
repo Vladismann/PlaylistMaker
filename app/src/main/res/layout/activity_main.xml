@@ -45,7 +45,8 @@
             android:textSize="@dimen/default_text_size"
             app:icon="@drawable/search_svg"
             app:iconGravity="textStart"
-            app:iconTint="@color/black"/>
+            app:iconTint="@color/black"
+            android:textAllCaps="false"/>
 
         <Button
             android:id="@+id/media"
@@ -61,7 +62,8 @@
             android:textSize="@dimen/default_text_size"
             app:icon="@drawable/media_svg"
             app:iconGravity="textStart"
-            app:iconTint="@color/black"/>
+            app:iconTint="@color/black"
+            android:textAllCaps="false"/>
 
         <Button
             android:id="@+id/settings"
@@ -77,9 +79,9 @@
             android:textSize="@dimen/default_text_size"
             app:icon="@drawable/settings_svg"
             app:iconGravity="textStart"
-            app:iconTint="@color/black"/>
+            app:iconTint="@color/black"
+            android:textAllCaps="false"/>
 
     </GridLayout>
-
 
 </LinearLayout>
