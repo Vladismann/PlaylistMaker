@@ -34,7 +34,7 @@
         <item name="android:layout_gravity">end</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginEnd">@dimen/default_margin</item>
-        <item name="android:fillColor">@color/SettingsButtonColor</item>
+        <item name="android:fillColor">@color/settingsButtonColor</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
@@ -46,6 +46,15 @@
     <style name="SettingsSwitcher" parent="SettingsButtonStyle">
         <item name="android:thumbTint">@drawable/switch_thumb_selector</item>
         <item name="android:trackTint">@drawable/switch_track_selector</item>
+    </style>
+
+    <style name="GoBackButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">start</item>
+        <item name="android:layout_marginStart">@dimen/default_margin</item>
+        <item name="android:fillColor">@color/settingsButtonColor</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
 </resources>
