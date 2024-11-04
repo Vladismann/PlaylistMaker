@@ -39,7 +39,6 @@
             style="@style/SettingsSwitcher"
             android:minHeight="12dp"
             android:layout_marginEnd="6dp"
-
             tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
 
     </FrameLayout>
@@ -53,6 +52,7 @@
             android:text="@string/share_app" />
 
         <ImageView
+            android:id="@+id/share"
             style="@style/SettingsButtonStyle"
             android:src="@drawable/share_svg" />
     </FrameLayout>
@@ -66,6 +66,7 @@
             android:text="@string/write_to_support" />
 
         <ImageView
+            android:id="@+id/support"
             style="@style/SettingsButtonStyle"
             android:src="@drawable/support_svg" />
     </FrameLayout>
@@ -79,6 +80,7 @@
             android:text="@string/user_agreement" />
 
         <ImageView
+            android:id="@+id/agreement"
             style="@style/SettingsButtonStyle"
             android:layout_marginEnd="20dp"
             android:src="@drawable/arrow_forward" />
