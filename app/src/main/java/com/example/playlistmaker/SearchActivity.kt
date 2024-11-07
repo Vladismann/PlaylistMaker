@@ -1,20 +1,21 @@
 package com.example.playlistmaker
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isVisible
 
 class SearchActivity : AppCompatActivity() {
     companion object {
         private const val INPUT_KEY = "ACTUAL_TEXT"
     }
+
     private lateinit var actualInput: String
     private lateinit var inputEditText: EditText
 
@@ -22,13 +23,13 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        val buttonBack = findViewById<ImageView>(R.id.go_back)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
-        inputEditText = findViewById<EditText>(R.id.input_search)
+        inputEditText = findViewById(R.id.input_search)
+        setSupportActionBar(toolbar)
 
-        buttonBack.setOnClickListener {
-            val displayIntent = Intent(this, MainActivity::class.java)
-            startActivity(displayIntent)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
         clearButton.setOnClickListener {
@@ -43,7 +44,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                clearButton.visibility = clearButtonVisibility(s)
+                clearButton.isVisible = !s.isNullOrEmpty()
                 actualInput = s.toString()
             }
 
@@ -52,14 +53,6 @@ class SearchActivity : AppCompatActivity() {
             }
         }
         inputEditText.addTextChangedListener(simpleTextWatcher)
-    }
-
-    private fun clearButtonVisibility(s: CharSequence?): Int {
-        return if (s.isNullOrEmpty()) {
-            View.GONE
-        } else {
-            View.VISIBLE
-        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

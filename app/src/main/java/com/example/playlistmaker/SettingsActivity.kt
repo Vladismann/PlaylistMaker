@@ -5,20 +5,21 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val buttonBack = findViewById<ImageView>(R.id.go_back)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val buttonShare = findViewById<ImageView>(R.id.share)
         val buttonSupport = findViewById<ImageView>(R.id.support)
         val buttonAgreement = findViewById<ImageView>(R.id.agreement)
+        setSupportActionBar(toolbar)
 
-        buttonBack.setOnClickListener {
-            val displayIntent = Intent(this, MainActivity::class.java)
-            startActivity(displayIntent)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
         }
 
         buttonShare.setOnClickListener {

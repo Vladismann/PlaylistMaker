@@ -16,18 +16,22 @@
     </style>
 
     <style name="MainButtonStyle" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:fontFamily">@font/ys_display_medium</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:layout_gravity">fill</item>
-        <item name="android:layout_marginTop">@dimen/half_default_margin</item>
+        <item name="android:layout_marginTop">4dp</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
-        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:backgroundTint">@color/YP_White</item>
         <item name="android:textSize">@dimen/default_text_size</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/YP_Black</item>
         <item name="cornerRadius">@dimen/default_radius</item>
         <item name="iconGravity">textStart</item>
-        <item name="iconTint">@color/black</item>
+        <item name="iconTint">@color/YP_Black</item>
         <item name="android:stateListAnimator">@null</item>
+        <item name="android:layout_marginStart">@dimen/default_margin</item>
+        <item name="android:layout_marginEnd">@dimen/default_margin</item>
     </style>
 
     <style name="SettingsButtonStyle">
@@ -56,6 +60,18 @@
         <item name="android:layout_marginStart">@dimen/default_margin</item>
         <item name="android:fillColor">@color/settingsButtonColor</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="ToolbarPageTittle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">@dimen/default_text_size</item>
+        <item name="android:textColor">@color/defaultTextColor</item>
+        <item name="android:fontFamily">@font/ys_display_medium</item>
+    </style>
+
+    <style name="ToolbarMainPage" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">@dimen/default_text_size</item>
+        <item name="android:textColor">@color/YP_White</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
     </style>
 
 </resources>
