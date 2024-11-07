@@ -8,9 +8,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        style="@style/ToolbarPageTittle"
         android:textColor="@color/YP_White"
         app:title="@string/app_name"
         app:titleTextAppearance="@style/ToolbarMainPage" />

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/defaultBackground"
@@ -9,70 +8,35 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        style="@style/ToolbarPageTittle"
         app:navigationIcon="@drawable/arrow_back"
         app:title="@string/settings"
         app:titleTextAppearance="@style/ToolbarPageTittle" />
 
-    <FrameLayout
-        style="@style/SettingsTextLayout"
-        android:layout_marginTop="40dp">
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        style="@style/CustomSwitchStyle"
+        android:layout_marginTop="20dp"
+        android:paddingEnd="@dimen/half_default_margin"
+        android:text="@string/dark_theme"
+        />
 
-        <TextView
-            style="@style/SettingsTextStyle"
-            android:text="@string/dark_theme" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/share"
+        style="@style/SettingsTextView"
+        android:drawableEnd="@drawable/share_svg"
+        android:text="@string/share_app"
+        />
 
-        <Switch
-            style="@style/SettingsSwitcher"
-            android:layout_marginEnd="6dp"
-            android:minHeight="12dp"
-            tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/support"
+        style="@style/SettingsTextView"
+        android:drawableEnd="@drawable/support_svg"
+        android:text="@string/write_to_support" />
 
-    </FrameLayout>
-
-    <FrameLayout
-        style="@style/SettingsTextLayout"
-        android:layout_marginTop="@dimen/settings_margin_top">
-
-        <TextView
-            style="@style/SettingsTextStyle"
-            android:text="@string/share_app" />
-
-        <ImageView
-            android:id="@+id/share"
-            style="@style/SettingsButtonStyle"
-            android:src="@drawable/share_svg" />
-    </FrameLayout>
-
-    <FrameLayout
-        style="@style/SettingsTextLayout"
-        android:layout_marginTop="@dimen/settings_margin_top">
-
-        <TextView
-            style="@style/SettingsTextStyle"
-            android:text="@string/write_to_support" />
-
-        <ImageView
-            android:id="@+id/support"
-            style="@style/SettingsButtonStyle"
-            android:src="@drawable/support_svg" />
-    </FrameLayout>
-
-    <FrameLayout
-        style="@style/SettingsTextLayout"
-        android:layout_marginTop="@dimen/settings_margin_top">
-
-        <TextView
-            style="@style/SettingsTextStyle"
-            android:text="@string/user_agreement" />
-
-        <ImageView
-            android:id="@+id/agreement"
-            style="@style/SettingsButtonStyle"
-            android:layout_marginEnd="20dp"
-            android:src="@drawable/arrow_forward" />
-    </FrameLayout>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/agreement"
+        style="@style/SettingsTextView"
+        android:drawableEnd="@drawable/arrow_forward"
+        android:text="@string/user_agreement" />
 
 </LinearLayout>

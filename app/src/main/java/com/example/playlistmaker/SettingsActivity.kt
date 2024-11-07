@@ -3,9 +3,9 @@ package com.example.playlistmaker
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.google.android.material.textview.MaterialTextView
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,9 +13,9 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        val buttonShare = findViewById<ImageView>(R.id.share)
-        val buttonSupport = findViewById<ImageView>(R.id.support)
-        val buttonAgreement = findViewById<ImageView>(R.id.agreement)
+        val buttonShare = findViewById<MaterialTextView>(R.id.share)
+        val buttonSupport = findViewById<MaterialTextView>(R.id.support)
+        val buttonAgreement = findViewById<MaterialTextView>(R.id.agreement)
         setSupportActionBar(toolbar)
 
         toolbar.setNavigationOnClickListener {
