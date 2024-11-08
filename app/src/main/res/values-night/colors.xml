@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="settingsButtonColor">@color/YP_White</color>
+    <color name="defaultTextColor">@color/YP_White</color>
+    <color name="searchPagePlaceholder">@color/YP_Black</color>
+    <color name="searchPageInput">@color/YP_White</color>
+    <color name="defaultBackground">@color/YP_Black</color>
+    <color name="mainPageBackground">@color/YP_Black</color>
+    <color name="switchTumbler">@color/YP_White</color>
+</resources>
