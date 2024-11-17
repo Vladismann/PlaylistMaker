@@ -13,6 +13,8 @@
 
     <color name="searchPagePlaceholder">@color/YP_Text_Grey</color>
     <color name="searchPageInput">@color/YP_Light_Grey</color>
+    <color name="trackAdditionalText">@color/YP_Text_Grey</color>
+
     <color name="switchBackground">@color/YP_Light_Grey</color>
     <color name="switchTumbler">@color/YP_Text_Grey</color>
     <color name="switchThumbActive">@color/YP_Blue</color>
