@@ -6,7 +6,7 @@
     android:layout_height="61dp"
     android:gravity="start"
     android:orientation="horizontal"
-    android:paddingStart="13dp">
+    android:paddingStart="16dp">
 
     <ImageView
         android:id="@+id/ivTrackImage"
@@ -17,7 +17,8 @@
         android:src="@drawable/placeholder" />
 
     <LinearLayout
-        android:layout_width="250dp"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingStart="6dp">
@@ -71,6 +72,6 @@
         android:layout_height="24dp"
         android:layout_gravity="end|center_vertical"
         android:scaleType="center"
-        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginEnd="16dp"
         android:src="@drawable/arrow_forward" />
 </LinearLayout>
