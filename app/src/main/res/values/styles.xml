@@ -23,7 +23,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:fontFamily">@font/ys_display_regular</item>
-        <item name="android:textSize">@dimen/settings_text_size</item>
+        <item name="android:textSize">@dimen/secondary_text_size</item>
         <item name="android:textColor">@color/defaultTextColor</item>
         <item name="android:paddingHorizontal">@dimen/default_margin</item>
         <item name="android:paddingVertical">20dp</item>
@@ -49,6 +49,14 @@
         <item name="android:textSize">@dimen/default_text_size</item>
         <item name="android:textColor">@color/YP_White</item>
         <item name="android:fontFamily">@font/ys_display_regular</item>
+    </style>
+
+    <style name="TrackText">
+        <item name="android:textColor">@color/trackAdditionalText</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
     </style>
 
 </resources>
