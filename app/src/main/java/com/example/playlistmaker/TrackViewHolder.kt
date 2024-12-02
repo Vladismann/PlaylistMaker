@@ -17,7 +17,7 @@ class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bind(item: Track) {
         var actualName = item.trackName
         var actualArtistName = item.artistName
-        var actualTrackTime = item.trackTime
+        var actualTrackTime = ""
 
         if (actualName.isBlank()) {
             actualName = itemView.context.getString(R.string.text_waiting)
@@ -25,13 +25,13 @@ class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         if (actualArtistName.isBlank()) {
             actualArtistName = itemView.context.getString(R.string.text_waiting)
         }
-        if (actualTrackTime.isBlank()) {
+        if (item.trackTimeMillis == 0L) {
             actualTrackTime = itemView.context.getString(R.string.text_waiting)
         }
 
         tvTrackName.text = actualName
         tvTrackArtistName.text = actualArtistName
-        tvTrackTime.text = actualTrackTime
+        tvTrackTime.text = actualTrackTime.toString()
 
         Glide.with(itemView)
             .load(item.artworkUrl100)

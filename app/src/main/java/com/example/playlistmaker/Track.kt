@@ -1,8 +1,8 @@
 package com.example.playlistmaker
 
 data class Track(
-    var trackName: String,
-    var artistName: String,
-    var trackTime: String,
-    var artworkUrl100: String
+    val trackName: String,
+    val artistName: String,
+    val trackTimeMillis: Long,
+    val artworkUrl100: String
 )

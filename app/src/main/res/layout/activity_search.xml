@@ -26,6 +26,8 @@
             android:id="@+id/input_search"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
             android:background="@drawable/rounded_input"
             android:drawableStart="@drawable/search_small_svg"
             android:drawablePadding="10dp"
