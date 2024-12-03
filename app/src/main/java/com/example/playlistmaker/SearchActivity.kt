@@ -42,7 +42,7 @@ class SearchActivity : AppCompatActivity() {
 
     private var actualInput: String = ""
     private lateinit var inputEditText: EditText
-    private lateinit var tracks: MutableList<Track>
+    private lateinit var tracks: List<Track>
     private lateinit var errorElement: LinearLayout
     private lateinit var refreshButton: Button
     private lateinit var errorImage: ImageView
@@ -117,9 +117,9 @@ class SearchActivity : AppCompatActivity() {
                 call: Call<TrackResponse>,
                 response: Response<TrackResponse>
             ) {
-
-                if (response.isSuccessful && response.body() != null) {
-                    tracks = response.body()!!.results
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    tracks = body.results
                     if (tracks.isEmpty()) {
                         trackAdapter.clear()
                         rvTrack.visibility = View.GONE

@@ -5,16 +5,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 class TrackAdapter (
-private var data: MutableList<Track>
+private var data: List<Track>
 ) : RecyclerView.Adapter<TrackViewHolder> () {
 
-    fun updateData(newData: MutableList<Track>) {
+    fun updateData(newData: List<Track>) {
         data = newData
         notifyDataSetChanged()
     }
 
     fun clear() {
-        data.clear()
+        data = listOf()
         notifyDataSetChanged()
     }
 
