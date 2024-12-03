@@ -72,8 +72,9 @@
         android:layout_width="312dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="166dp"
-        android:orientation="vertical">
+        android:layout_marginTop="120dp"
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/errorImage"
@@ -84,18 +85,34 @@
 
         <TextView
             android:id="@+id/errorText"
+            style="@style/TrackText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="4"
-            android:lines="4"
-            android:text="@string/connection_error"
-            style="@style/TrackText"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
             android:fontFamily="@font/ys_display_medium"
+            android:gravity="center_horizontal"
+            android:lines="4"
+            android:maxLines="4"
+            android:text="@string/connection_error"
             android:textColor="@color/defaultTextColor"
-            android:gravity="center"
-            android:textSize="19sp"
-            android:layout_marginTop="20dp">
-        </TextView>
+            android:textSize="19sp" />
+
+        <Button
+            android:id="@+id/refreshTracks"
+            android:layout_width="91dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/search_refresh_button_background"
+            android:fontFamily="@font/ys_display_medium"
+            android:foreground="?attr/selectableItemBackground"
+            android:padding="6dp"
+            android:text="@string/refresh"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            android:visibility="visible"
+            app:backgroundTint="@null" />
     </LinearLayout>
 
 </LinearLayout>
