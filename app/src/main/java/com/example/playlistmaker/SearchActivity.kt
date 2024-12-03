@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -48,12 +49,19 @@ class SearchActivity : AppCompatActivity() {
         inputEditText = findViewById(R.id.input_search)
         setSupportActionBar(toolbar)
 
+        var tracks: MutableList<Track> = arrayListOf()
+        val trackAdapter = TrackAdapter(tracks)
+        val rvTrack = findViewById<RecyclerView>(R.id.rvTrack)
+        rvTrack.adapter = trackAdapter
+
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
         clearButton.setOnClickListener {
             inputEditText.setText("")
+            trackAdapter.clear()
+            rvTrack.visibility = View.GONE
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
         }
@@ -74,14 +82,6 @@ class SearchActivity : AppCompatActivity() {
         }
         inputEditText.addTextChangedListener(simpleTextWatcher)
 
-        fun displayTracks(tracks: List<Track>) {
-            val trackAdapter = TrackAdapter(tracks)
-            val rvTrack = findViewById<RecyclerView>(R.id.rvTrack)
-            rvTrack.adapter = trackAdapter
-        }
-
-        var tracks : List<Track>
-
         inputEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 apiService.searchTracks(actualInput).enqueue(object : Callback<TrackResponse> {
@@ -91,7 +91,8 @@ class SearchActivity : AppCompatActivity() {
                     ) {
                         if (response.isSuccessful && response.body() != null) {
                             tracks = response.body()!!.results
-                            displayTracks(tracks)
+                            trackAdapter.updateData(tracks)
+                            rvTrack.visibility = View.VISIBLE
                         }
                     }
 

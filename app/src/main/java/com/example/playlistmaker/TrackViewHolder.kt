@@ -5,7 +5,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -17,25 +18,26 @@ class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bind(item: Track) {
         var actualName = item.trackName
         var actualArtistName = item.artistName
-        var actualTrackTime = ""
 
-        if (actualName.isBlank()) {
-            actualName = itemView.context.getString(R.string.text_waiting)
+        val actualTrackTime: String = if (item.trackTimeMillis == null) {
+            SimpleDateFormat("mm:ss", Locale.getDefault()).format(0L)
+        } else {
+            SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTimeMillis)
         }
-        if (actualArtistName.isBlank()) {
-            actualArtistName = itemView.context.getString(R.string.text_waiting)
+
+        if (actualName.isNullOrBlank()) {
+            actualName = itemView.context.getString(R.string.text_empty)
         }
-        if (item.trackTimeMillis == 0L) {
-            actualTrackTime = itemView.context.getString(R.string.text_waiting)
+        if (actualArtistName.isNullOrBlank()) {
+            actualArtistName = itemView.context.getString(R.string.text_empty)
         }
 
         tvTrackName.text = actualName
         tvTrackArtistName.text = actualArtistName
-        tvTrackTime.text = actualTrackTime.toString()
+        tvTrackTime.text = actualTrackTime
 
         Glide.with(itemView)
             .load(item.artworkUrl100)
-            .transform(RoundedCorners(10))
             .placeholder(R.drawable.placeholder)
             .into(ivTrackImage)
     }
