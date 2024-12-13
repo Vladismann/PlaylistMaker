@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
 
 class SettingsActivity : AppCompatActivity() {
@@ -16,10 +17,22 @@ class SettingsActivity : AppCompatActivity() {
         val buttonShare = findViewById<MaterialTextView>(R.id.share)
         val buttonSupport = findViewById<MaterialTextView>(R.id.support)
         val buttonAgreement = findViewById<MaterialTextView>(R.id.agreement)
+        val themeSwitcher = findViewById<SwitchMaterial>(R.id.themeSwitcher)
         setSupportActionBar(toolbar)
+        val theme = (applicationContext as App).getCurrentTheme()
+
+        if (theme) {
+            themeSwitcher.setChecked(true)
+        } else {
+            themeSwitcher.setChecked(false)
+        }
 
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
+        }
+
+        themeSwitcher.setOnCheckedChangeListener { _, checked ->
+            (applicationContext as App).switchTheme(checked)
         }
 
         buttonShare.setOnClickListener {
