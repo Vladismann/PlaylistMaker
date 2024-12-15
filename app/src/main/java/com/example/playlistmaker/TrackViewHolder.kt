@@ -8,7 +8,17 @@ import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class TrackViewHolder(itemView: View, private val listener: OnItemClickListener?) :
+    RecyclerView.ViewHolder(itemView) {
+
+    init {
+        itemView.setOnClickListener {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                listener?.onItemClick(position)
+            }
+        }
+    }
 
     private val tvTrackName: TextView = itemView.findViewById(R.id.tvTrackName)
     private val tvTrackArtistName: TextView = itemView.findViewById(R.id.tvTrackArtistName)
