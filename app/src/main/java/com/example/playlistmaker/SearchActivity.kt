@@ -14,12 +14,10 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -32,6 +30,7 @@ class SearchActivity : AppCompatActivity() {
         private const val INPUT_KEY = "ACTUAL_TEXT"
         private const val PREFS_NAME = "SearchPrefs"
         private const val TRACK_KEY = "tracks"
+        private const val TRACK_HISTORY_SIZE = 10
     }
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -84,28 +83,20 @@ class SearchActivity : AppCompatActivity() {
         val rvTrackHistory: RecyclerView = findViewById(R.id.rvTrackHistory)
         rvTrackHistory.adapter = trackHistoryAdapter
 
-        trackAdapter.setOnItemClickListener(object : OnItemClickListener {
-            override fun onItemClick(position: Int) {
-                val clickedTrack = tracks[position]
-                val listToEdit = trackHistoryAdapter.getItems().toMutableList()
+        trackAdapter.setOnItemClickListener { position ->
+            val clickedTrack = tracks[position]
+            val listToEdit = trackHistoryAdapter.getItems().toMutableList()
 
-                if (listToEdit.contains(clickedTrack)) {
-                    listToEdit.remove(clickedTrack)
-                }
-                if (listToEdit.size == 10) {
-                    listToEdit.removeAt(9)
-                }
-                listToEdit.add(0, clickedTrack)
-                writeTracksToPrefs(listToEdit.toTypedArray())
-                trackHistoryAdapter.updateData(listToEdit.toList())
-
-                Toast.makeText(
-                    this@SearchActivity,
-                    "Трек добавлен в историю поиска: ${clickedTrack.artistName} — ${clickedTrack.trackName}",
-                    Toast.LENGTH_SHORT
-                ).show()
+            if (listToEdit.contains(clickedTrack)) {
+                listToEdit.remove(clickedTrack)
             }
-        })
+            if (listToEdit.size == TRACK_HISTORY_SIZE) {
+                listToEdit.removeAt(TRACK_HISTORY_SIZE - 1)
+            }
+            listToEdit.add(0, clickedTrack)
+            writeTracksToPrefs(listToEdit.toTypedArray())
+            trackHistoryAdapter.updateData(listToEdit.toList())
+        }
 
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -174,7 +165,13 @@ class SearchActivity : AppCompatActivity() {
                 if (response.isSuccessful && body != null) {
                     tracks = body.results
                     //оставляем только треки у аудио книг нет trackId
-                    tracks = tracks.filter { it.wrapperType.equals("track") }
+                    tracks = tracks.mapNotNull { track ->
+                        if (track.trackId != null) {
+                            track
+                        } else {
+                            null
+                        }
+                    }
                     if (tracks.isEmpty()) {
                         trackAdapter.clear()
                         rvTrack.visibility = View.GONE
@@ -217,14 +214,14 @@ class SearchActivity : AppCompatActivity() {
     private fun readTracksFromPrefs(): List<Track> {
         val json = sharedPreferences.getString(TRACK_KEY, null)
         return if (!json.isNullOrEmpty()) {
-            Gson().fromJson(json, Array<Track>::class.java).toList()
+            GsonProvider.gson.fromJson(json, Array<Track>::class.java).toList()
         } else {
             emptyList()
         }
     }
 
-    fun writeTracksToPrefs(tracks: Array<Track>) {
-        val json = Gson().toJson(tracks)
+    private fun writeTracksToPrefs(tracks: Array<Track>) {
+        val json = GsonProvider.gson.toJson(tracks)
         sharedPreferences.edit()
             .putString(TRACK_KEY, json)
             .apply()
