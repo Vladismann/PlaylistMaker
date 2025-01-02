@@ -36,10 +36,10 @@ class TrackViewHolder(itemView: View, private val listener: OnItemClickListener?
         }
 
         if (actualName.isNullOrBlank()) {
-            actualName = itemView.context.getString(R.string.text_empty)
+            actualName = itemView.context.getString(R.string.text_null)
         }
         if (actualArtistName.isNullOrBlank()) {
-            actualArtistName = itemView.context.getString(R.string.text_empty)
+            actualArtistName = itemView.context.getString(R.string.text_null)
         }
 
         tvTrackName.text = actualName
