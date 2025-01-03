@@ -13,10 +13,16 @@
     <string name="email_subject">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
     <string name="email_body">Спасибо разработчикам и разработчицам за крутое приложение!</string>
     <string name="user_agreements">https://yandex.ru/legal/practicum_offer/</string>
-    <string name="text_empty">Unknown</string>
+    <string name="text_null">Unknown</string>
     <string name="nothing_found">Ничего не нашлось</string>
     <string name="connection_error">Проблемы со связью\n\nЗагрузка не удалась. Проверьте подключение к интернету</string>
     <string name="refresh">Обновить</string>
     <string name="search_history_header">Вы искали</string>
     <string name="clear_search">Очистить историю</string>
+    <string name="time_null">0:00</string>
+    <string name="duration">Длительность</string>
+    <string name="album">Альбом</string>
+    <string name="year">Год</string>
+    <string name="genre">Жанр</string>
+    <string name="country">Страна</string>
 </resources>

@@ -13,7 +13,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.stToolbar)
         val buttonShare = findViewById<MaterialTextView>(R.id.share)
         val buttonSupport = findViewById<MaterialTextView>(R.id.support)
         val buttonAgreement = findViewById<MaterialTextView>(R.id.agreement)

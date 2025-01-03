@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/maToolbar"
         style="@style/ToolbarPageTittle"
         android:textColor="@color/YP_White"
         app:title="@string/app_name"

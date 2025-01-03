@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/stToolbar"
         style="@style/ToolbarPageTittle"
         app:navigationIcon="@drawable/arrow_back"
         app:title="@string/settings"

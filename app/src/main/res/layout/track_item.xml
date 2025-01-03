@@ -41,7 +41,7 @@
             style="@style/TrackText"
             android:textColor="@color/defaultTextColor"
             android:textSize="@dimen/secondary_text_size"
-            tools:text="@string/text_empty"
+            tools:text="@string/text_null"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/TrackText"
-                tools:text="@string/text_empty"
+                tools:text="@string/text_null"
                 android:ellipsize="end"
                 android:maxLines="1"/>
 
@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/TrackText"
-                tools:text="@string/text_empty"
+                tools:text="@string/time_null"
                 android:ellipsize="end"
                 android:maxLines="1"/>
         </LinearLayout>

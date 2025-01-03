@@ -1,6 +1,7 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
@@ -18,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.example.playlistmaker.DataConst.SEARCH_PREFS
+import com.example.playlistmaker.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,8 +31,7 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         private const val BASE_URL = "https://itunes.apple.com"
         private const val INPUT_KEY = "ACTUAL_TEXT"
-        private const val PREFS_NAME = "SearchPrefs"
-        private const val TRACK_KEY = "tracks"
+        private const val TRACK_HISTORY_KEY = "tracks"
         private const val TRACK_HISTORY_SIZE = 10
     }
 
@@ -59,10 +61,10 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
         setContentView(R.layout.activity_search)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.seToolbar)
         setSupportActionBar(toolbar)
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         val searchHistory = findViewById<LinearLayout>(R.id.historyElement)
@@ -95,7 +97,18 @@ class SearchActivity : AppCompatActivity() {
             }
             listToEdit.add(0, clickedTrack)
             writeTracksToPrefs(listToEdit.toTypedArray())
+            writeTrackToPrefs(clickedTrack)
             trackHistoryAdapter.updateData(listToEdit.toList())
+
+            val displayIntent = Intent(this, AudioPlayerActivity::class.java)
+            startActivity(displayIntent)
+        }
+
+        trackHistoryAdapter.setOnItemClickListener { position ->
+            val clickedTrack = trackHistoryAdapter.getItems()[position]
+            writeTrackToPrefs(clickedTrack)
+            val displayIntent = Intent(this, AudioPlayerActivity::class.java)
+            startActivity(displayIntent)
         }
 
         toolbar.setNavigationOnClickListener {
@@ -212,7 +225,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun readTracksFromPrefs(): List<Track> {
-        val json = sharedPreferences.getString(TRACK_KEY, null)
+        val json = sharedPreferences.getString(TRACK_HISTORY_KEY, null)
         return if (!json.isNullOrEmpty()) {
             GsonProvider.gson.fromJson(json, Array<Track>::class.java).toList()
         } else {
@@ -223,7 +236,14 @@ class SearchActivity : AppCompatActivity() {
     private fun writeTracksToPrefs(tracks: Array<Track>) {
         val json = GsonProvider.gson.toJson(tracks)
         sharedPreferences.edit()
-            .putString(TRACK_KEY, json)
+            .putString(TRACK_HISTORY_KEY, json)
+            .apply()
+    }
+
+    private fun writeTrackToPrefs(track: Track) {
+        val json = GsonProvider.gson.toJson(track)
+        sharedPreferences.edit()
+            .putString(TRACK_TO_AUDIO_PLAYER_KEY, json)
             .apply()
     }
 
