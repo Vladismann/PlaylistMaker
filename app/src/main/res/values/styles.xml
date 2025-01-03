@@ -85,7 +85,7 @@
     </style>
 
     <style name="AudioPlayerTextPlaceholder" parent="AudioPlayerText">
-        <item name="android:layout_height">15dp</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:textColor">@color/YP_Text_Grey</item>
         <item name="android:textSize">13sp</item>
