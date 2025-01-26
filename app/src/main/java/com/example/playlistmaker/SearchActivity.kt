@@ -150,13 +150,19 @@ class SearchActivity : AppCompatActivity() {
                     progressBar.visibility = View.VISIBLE
                     searchHistory.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
-                    trackAdapter.clear()
+                    rvTrack.visibility = View.GONE
                 }
                 if (inputEditText.text.isEmpty() && trackHistoryAdapter.itemCount == 0) {
-                    trackAdapter.clear()
+                    rvTrack.visibility = View.GONE
+                    errorElement.visibility = View.GONE
                 }
+
                 if (inputEditText.text.isNotEmpty()) {
                     searchDebounce()
+                } else {
+                    handler?.removeCallbacks(searchRunnable)
+                    rvTrack.visibility = View.GONE
+                    errorElement.visibility = View.GONE
                 }
             }
 

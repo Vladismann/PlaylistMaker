@@ -1,6 +1,10 @@
 package com.example.playlistmaker
 
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +16,21 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class AudioPlayerActivity : AppCompatActivity() {
+
+    companion object {
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
+        private const val TRACK_UPDATE_TIME_DELAY = 500L
+    }
+
+    private lateinit var playButton: ImageButton
+    private lateinit var trackPlayTime: TextView
+    private var mediaPlayer = MediaPlayer()
+    private var playerState = STATE_DEFAULT
+    private var handler: Handler? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audioplayer)
@@ -25,6 +44,9 @@ class AudioPlayerActivity : AppCompatActivity() {
         val trackYear = findViewById<TextView>(R.id.apActualYear)
         val trackGenre = findViewById<TextView>(R.id.apActualGenre)
         val trackCountry = findViewById<TextView>(R.id.apActualCountry)
+        playButton = findViewById(R.id.apPlayAudioButton)
+        trackPlayTime = findViewById(R.id.apPlayingTime)
+        handler = Handler(Looper.getMainLooper())
 
         toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -74,6 +96,11 @@ class AudioPlayerActivity : AppCompatActivity() {
             if (!actualTrack.country.isNullOrEmpty()) {
                 trackCountry.text = actualTrack.country
             }
+            preparePlayer(actualTrack.previewUrl)
+        }
+
+        playButton.setOnClickListener {
+            playbackControl()
         }
     }
 
@@ -85,5 +112,65 @@ class AudioPlayerActivity : AppCompatActivity() {
         } else {
             null
         }
+    }
+
+    private fun preparePlayer(url: String?) {
+        mediaPlayer.setDataSource(url)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.setOnPreparedListener {
+            playButton.setBackgroundResource(R.drawable.play_audio_button)
+            playerState = STATE_PREPARED
+        }
+        mediaPlayer.setOnCompletionListener {
+            playerState = STATE_PREPARED
+            handler?.removeCallbacks(playbackTimeRunnable)
+            trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(0L)
+            playButton.setBackgroundResource(R.drawable.play_audio_button)
+        }
+    }
+
+    private fun startPlayer() {
+        mediaPlayer.start()
+        playButton.setBackgroundResource(R.drawable.pause_audio_button)
+        playerState = STATE_PLAYING
+        playbackTimeForward()
+    }
+
+    private fun pausePlayer() {
+        mediaPlayer.pause()
+        playButton.setBackgroundResource(R.drawable.play_audio_button)
+        playerState = STATE_PAUSED
+        handler?.removeCallbacks(playbackTimeRunnable)
+    }
+
+    private fun playbackControl() {
+        when(playerState) {
+            STATE_PLAYING -> {
+                pausePlayer()
+            }
+            STATE_PREPARED, STATE_PAUSED -> {
+                startPlayer()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        pausePlayer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.release()
+        handler?.removeCallbacks(playbackTimeRunnable)
+    }
+
+    private val playbackTimeRunnable = Runnable {
+        trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
+        playbackTimeForward()
+    }
+
+    private fun playbackTimeForward() {
+        handler?.postDelayed(playbackTimeRunnable, TRACK_UPDATE_TIME_DELAY)
     }
 }
