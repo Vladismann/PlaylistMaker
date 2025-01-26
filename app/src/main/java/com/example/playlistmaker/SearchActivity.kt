@@ -4,16 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -33,6 +35,8 @@ class SearchActivity : AppCompatActivity() {
         private const val INPUT_KEY = "ACTUAL_TEXT"
         private const val TRACK_HISTORY_KEY = "tracks"
         private const val TRACK_HISTORY_SIZE = 10
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -57,10 +61,14 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var errorText: TextView
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var rvTrack: RecyclerView
+    private var handler: Handler? = null
+    private var isClickAllowed = true
+    private lateinit var progressBar: ProgressBar
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handler = Handler(Looper.getMainLooper())
         sharedPreferences = getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
         setContentView(R.layout.activity_search)
 
@@ -68,6 +76,7 @@ class SearchActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         val clearButton = findViewById<ImageView>(R.id.clearIcon)
         val searchHistory = findViewById<LinearLayout>(R.id.historyElement)
+        progressBar = findViewById(R.id.searchProgressBar)
 
         inputEditText = findViewById(R.id.input_search)
         errorElement = findViewById(R.id.errorMessageElement)
@@ -86,29 +95,33 @@ class SearchActivity : AppCompatActivity() {
         rvTrackHistory.adapter = trackHistoryAdapter
 
         trackAdapter.setOnItemClickListener { position ->
-            val clickedTrack = tracks[position]
-            val listToEdit = trackHistoryAdapter.getItems().toMutableList()
+            if (clickDebounce()) {
+                val clickedTrack = tracks[position]
+                val listToEdit = trackHistoryAdapter.getItems().toMutableList()
 
-            if (listToEdit.contains(clickedTrack)) {
-                listToEdit.remove(clickedTrack)
-            }
-            if (listToEdit.size == TRACK_HISTORY_SIZE) {
-                listToEdit.removeAt(TRACK_HISTORY_SIZE - 1)
-            }
-            listToEdit.add(0, clickedTrack)
-            writeTracksToPrefs(listToEdit.toTypedArray())
-            writeTrackToPrefs(clickedTrack)
-            trackHistoryAdapter.updateData(listToEdit.toList())
+                if (listToEdit.contains(clickedTrack)) {
+                    listToEdit.remove(clickedTrack)
+                }
+                if (listToEdit.size == TRACK_HISTORY_SIZE) {
+                    listToEdit.removeAt(TRACK_HISTORY_SIZE - 1)
+                }
+                listToEdit.add(0, clickedTrack)
+                writeTracksToPrefs(listToEdit.toTypedArray())
+                writeTrackToPrefs(clickedTrack)
+                trackHistoryAdapter.updateData(listToEdit.toList())
 
-            val displayIntent = Intent(this, AudioPlayerActivity::class.java)
-            startActivity(displayIntent)
+                val displayIntent = Intent(this, AudioPlayerActivity::class.java)
+                startActivity(displayIntent)
+            }
         }
 
         trackHistoryAdapter.setOnItemClickListener { position ->
-            val clickedTrack = trackHistoryAdapter.getItems()[position]
-            writeTrackToPrefs(clickedTrack)
-            val displayIntent = Intent(this, AudioPlayerActivity::class.java)
-            startActivity(displayIntent)
+            if (clickDebounce()) {
+                val clickedTrack = trackHistoryAdapter.getItems()[position]
+                writeTrackToPrefs(clickedTrack)
+                val displayIntent = Intent(this, AudioPlayerActivity::class.java)
+                startActivity(displayIntent)
+            }
         }
 
         toolbar.setNavigationOnClickListener {
@@ -134,7 +147,16 @@ class SearchActivity : AppCompatActivity() {
                 actualInput = s.toString()
                 searchHistory.visibility = View.GONE
                 if (inputEditText.text.isEmpty() && trackHistoryAdapter.itemCount != 0) {
+                    progressBar.visibility = View.VISIBLE
                     searchHistory.visibility = View.VISIBLE
+                    progressBar.visibility = View.GONE
+                    trackAdapter.clear()
+                }
+                if (inputEditText.text.isEmpty() && trackHistoryAdapter.itemCount == 0) {
+                    trackAdapter.clear()
+                }
+                if (inputEditText.text.isNotEmpty()) {
+                    searchDebounce()
                 }
             }
 
@@ -144,21 +166,19 @@ class SearchActivity : AppCompatActivity() {
         }
 
         inputEditText.addTextChangedListener(simpleTextWatcher)
-        inputEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                searchTracks()
-                true
-            }
-            false
-        }
 
         refreshButton.setOnClickListener {
             searchTracks()
         }
 
         inputEditText.setOnFocusChangeListener { _, hasFocus ->
-            searchHistory.visibility =
-                if (hasFocus && inputEditText.text.isEmpty() && trackHistoryAdapter.itemCount != 0) View.VISIBLE else View.GONE
+                if (hasFocus && inputEditText.text.isEmpty() && trackHistoryAdapter.itemCount != 0) {
+                    progressBar.visibility = View.VISIBLE
+                    searchHistory.visibility = View.VISIBLE
+                    progressBar.visibility = View.GONE
+                } else {
+                    searchHistory.visibility = View.GONE
+                }
         }
 
         clearHistoryButton.setOnClickListener {
@@ -169,6 +189,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun searchTracks() {
+        progressBar.visibility = View.VISIBLE
+        rvTrack.visibility = View.GONE
         apiService.searchTracks(actualInput).enqueue(object : Callback<TrackResponse> {
             override fun onResponse(
                 call: Call<TrackResponse>,
@@ -176,6 +198,7 @@ class SearchActivity : AppCompatActivity() {
             ) {
                 val body = response.body()
                 if (response.isSuccessful && body != null) {
+                    progressBar.visibility = View.GONE
                     tracks = body.results
                     //оставляем только треки у аудио книг нет trackId
                     tracks = tracks.mapNotNull { track ->
@@ -201,6 +224,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
+                progressBar.visibility = View.GONE
                 trackAdapter.clear()
                 rvTrack.visibility = View.GONE
                 errorElement.visibility = View.VISIBLE
@@ -210,6 +234,12 @@ class SearchActivity : AppCompatActivity() {
                 Log.e("Retrofit", "Request failed", t)
             }
         })
+    }
+
+    private val searchRunnable = Runnable { searchTracks() }
+    private fun searchDebounce() {
+        handler?.removeCallbacks(searchRunnable)
+        handler?.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -245,6 +275,15 @@ class SearchActivity : AppCompatActivity() {
         sharedPreferences.edit()
             .putString(TRACK_TO_AUDIO_PLAYER_KEY, json)
             .apply()
+    }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler?.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
     }
 
 }
