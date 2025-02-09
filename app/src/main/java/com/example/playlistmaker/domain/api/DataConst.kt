@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.domain.api
 
 object DataConst {
     const val SEARCH_PREFS = "SearchPrefs"

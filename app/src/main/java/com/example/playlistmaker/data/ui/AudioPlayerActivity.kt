@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.data.ui
 
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -10,8 +10,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
-import com.example.playlistmaker.DataConst.SEARCH_PREFS
-import com.example.playlistmaker.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
+import com.example.playlistmaker.domain.api.GsonProvider
+import com.example.playlistmaker.R
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.domain.api.DataConst.SEARCH_PREFS
+import com.example.playlistmaker.domain.api.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
 import java.text.SimpleDateFormat
 import java.util.Locale
 
