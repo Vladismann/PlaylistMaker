@@ -37,7 +37,7 @@ class AudioPlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audioplayer)
 
-        tackInteractor = Creator.provideTrackInteractor()
+        tackInteractor = Creator.provideTrackInteractor(this)
         val toolbar = findViewById<Toolbar>(R.id.apToolbar)
         val trackImage = findViewById<ImageView>(R.id.apTrackImage)
         val trackName = findViewById<TextView>(R.id.apTrackName)
@@ -104,17 +104,21 @@ class AudioPlayerActivity : AppCompatActivity() {
     }
 
     private fun preparePlayer(url: String?) {
-        mediaPlayer.setDataSource(url)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            playButton.setBackgroundResource(R.drawable.play_audio_button)
-            playerState = STATE_PREPARED
-        }
-        mediaPlayer.setOnCompletionListener {
-            playerState = STATE_PREPARED
-            handler?.removeCallbacks(playbackTimeRunnable)
-            trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(0L)
-            playButton.setBackgroundResource(R.drawable.play_audio_button)
+        if (url != null) {
+            mediaPlayer.setDataSource(url)
+            mediaPlayer.prepareAsync()
+            mediaPlayer.setOnPreparedListener {
+                playButton.setBackgroundResource(R.drawable.play_audio_button)
+                playerState = STATE_PREPARED
+            }
+            mediaPlayer.setOnCompletionListener {
+                playerState = STATE_PREPARED
+                handler?.removeCallbacks(playbackTimeRunnable)
+                trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(0L)
+                playButton.setBackgroundResource(R.drawable.play_audio_button)
+            }
+        } else {
+            return
         }
     }
 
@@ -133,10 +137,11 @@ class AudioPlayerActivity : AppCompatActivity() {
     }
 
     private fun playbackControl() {
-        when(playerState) {
+        when (playerState) {
             STATE_PLAYING -> {
                 pausePlayer()
             }
+
             STATE_PREPARED, STATE_PAUSED -> {
                 startPlayer()
             }
@@ -155,7 +160,8 @@ class AudioPlayerActivity : AppCompatActivity() {
     }
 
     private val playbackTimeRunnable = Runnable {
-        trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
+        trackPlayTime.text =
+            SimpleDateFormat("m:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
         playbackTimeForward()
     }
 

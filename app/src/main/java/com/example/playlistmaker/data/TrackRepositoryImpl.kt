@@ -1,7 +1,7 @@
 package com.example.playlistmaker.data
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import com.example.playlistmaker.App
 import com.example.playlistmaker.data.DataConst.SEARCH_PREFS
 import com.example.playlistmaker.data.DataConst.TRACK_HISTORY_KEY
 import com.example.playlistmaker.data.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
@@ -12,9 +12,12 @@ import com.example.playlistmaker.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackRepositoryImpl(private val networkClient: NetworkClient) : TrackRepository {
+class TrackRepositoryImpl(private val networkClient: NetworkClient, context: Context) :
+    TrackRepository {
 
-    private var sharedPreferences = App.context.getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
+    private val sharedPreferences by lazy {
+        context.getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
+    }
 
     override fun searchTracks(expression: String): List<Track> {
         val response = networkClient.doRequest(TrackSearchRequest(expression))
@@ -30,7 +33,9 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient) : TrackRepos
                         track.trackId,
                         track.trackName,
                         track.artistName,
-                        SimpleDateFormat("m:ss", Locale.getDefault()).format(track.trackTimeMillis),
+                        SimpleDateFormat("m:ss", Locale.getDefault()).format(
+                            track.trackTimeMillis ?: 0L
+                        ),
                         track.artworkUrl100,
                         track.collectionName,
                         track.releaseDate,
@@ -44,7 +49,7 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient) : TrackRepos
         }
     }
 
-    override fun saveTrackHistory(tracks: Array<Track>) {
+    override fun saveTrackHistory(tracks: List<Track>) {
         val json = GsonProvider.gson.toJson(tracks)
         sharedPreferences.edit()
             .putString(TRACK_HISTORY_KEY, json)

@@ -27,7 +27,7 @@ class TrackInteractorImpl(private val repository: TrackRepository) : TrackIntera
         return repository.getTrackHistory()
     }
 
-    override fun writeTracksHistory(tracks: Array<Track>, context: Context) {
+    override fun writeTracksHistory(tracks: List<Track>, context: Context) {
         repository.saveTrackHistory(tracks)
     }
 

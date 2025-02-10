@@ -55,7 +55,7 @@ class SearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handler = Handler(Looper.getMainLooper())
-        tackInteractor = Creator.provideTrackInteractor()
+        tackInteractor = Creator.provideTrackInteractor(this)
         sharedPreferences = getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
         setContentView(R.layout.activity_search)
 
@@ -93,7 +93,7 @@ class SearchActivity : AppCompatActivity() {
                     listToEdit.removeAt(TRACK_HISTORY_SIZE - 1)
                 }
                 listToEdit.add(0, clickedTrack)
-                tackInteractor.writeTracksHistory(listToEdit.toTypedArray(), this)
+                tackInteractor.writeTracksHistory(listToEdit, this)
                 tackInteractor.writeTrackForAudioPlayer(clickedTrack)
                 trackHistoryAdapter.updateData(listToEdit.toList())
 

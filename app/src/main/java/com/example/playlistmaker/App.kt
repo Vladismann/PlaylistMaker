@@ -1,7 +1,6 @@
 package com.example.playlistmaker
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
@@ -10,7 +9,6 @@ import androidx.appcompat.app.AppCompatDelegate
 class App : Application() {
 
     companion object {
-        lateinit var context: Context
         const val PREFS_NAME = "AppThemePrefs"
         const val DARK_THEME_KEY = "dark"
     }
@@ -20,7 +18,6 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        context = applicationContext
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val theme = getCurrentTheme()
         if (theme) {
@@ -33,7 +30,8 @@ class App : Application() {
     fun getCurrentTheme(): Boolean {
         if (!sharedPreferences.contains(DARK_THEME_KEY)) {
             //для первого запуска, ориентируемся на тему пользователя, далее по настройкам
-            val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+            val currentNightMode =
+                resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
             setDarkTheme(currentNightMode == Configuration.UI_MODE_NIGHT_YES)
         }
         return sharedPreferences.getBoolean(DARK_THEME_KEY, false)

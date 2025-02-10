@@ -4,5 +4,5 @@ import com.example.playlistmaker.data.dto.Response
 import com.example.playlistmaker.data.dto.TrackDto
 
 class TrackSearchResponse (
-    val results: MutableList<TrackDto>
+    val results: List<TrackDto>
 ) : Response()

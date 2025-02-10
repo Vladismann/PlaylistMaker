@@ -9,7 +9,7 @@ interface TrackInteractor {
 
     fun getTracksHistory(context: Context): List<Track>
 
-    fun writeTracksHistory(tracks: Array<Track>, context: Context)
+    fun writeTracksHistory(tracks: List<Track>, context: Context)
 
     fun clearTracksHistory()
 
