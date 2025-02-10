@@ -1,6 +1,7 @@
-package com.example.playlistmaker.presentation
+package com.example.playlistmaker
 
 import android.app.Application
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatDelegate
 class App : Application() {
 
     companion object {
+        lateinit var context: Context
         const val PREFS_NAME = "AppThemePrefs"
         const val DARK_THEME_KEY = "dark"
     }
@@ -18,6 +20,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        context = applicationContext
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val theme = getCurrentTheme()
         if (theme) {

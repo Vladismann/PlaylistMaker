@@ -1,4 +1,4 @@
-package com.example.playlistmaker.data.ui
+package com.example.playlistmaker.presentation.ui
 
 import android.content.Context
 import android.content.Intent
@@ -22,9 +22,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
-import com.example.playlistmaker.domain.api.DataConst.SEARCH_PREFS
-import com.example.playlistmaker.domain.api.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
-import com.example.playlistmaker.domain.api.GsonProvider
+import com.example.playlistmaker.data.DataConst.SEARCH_PREFS
 import com.example.playlistmaker.domain.api.TrackInteractor
 import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.domain.models.TrackSearchResult
@@ -33,7 +31,6 @@ import com.example.playlistmaker.presentation.TrackAdapter
 class SearchActivity : AppCompatActivity() {
     companion object {
         private const val INPUT_KEY = "ACTUAL_TEXT"
-        private const val TRACK_HISTORY_KEY = "tracks"
         private const val TRACK_HISTORY_SIZE = 10
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L
@@ -75,7 +72,7 @@ class SearchActivity : AppCompatActivity() {
         errorText = findViewById(R.id.errorText)
         tracks = arrayListOf()
         trackAdapter = TrackAdapter(tracks)
-        val tracksSearchHistory = readTracksFromPrefs()
+        val tracksSearchHistory = tackInteractor.getTracksHistory(this)
         val trackHistoryAdapter = TrackAdapter(tracksSearchHistory)
         val clearHistoryButton: Button = findViewById(R.id.clearSearchHistory)
 
@@ -96,8 +93,8 @@ class SearchActivity : AppCompatActivity() {
                     listToEdit.removeAt(TRACK_HISTORY_SIZE - 1)
                 }
                 listToEdit.add(0, clickedTrack)
-                writeTracksToPrefs(listToEdit.toTypedArray())
-                writeTrackToPrefs(clickedTrack)
+                tackInteractor.writeTracksHistory(listToEdit.toTypedArray(), this)
+                tackInteractor.writeTrackForAudioPlayer(clickedTrack)
                 trackHistoryAdapter.updateData(listToEdit.toList())
 
                 val displayIntent = Intent(this, AudioPlayerActivity::class.java)
@@ -108,7 +105,7 @@ class SearchActivity : AppCompatActivity() {
         trackHistoryAdapter.setOnItemClickListener { position ->
             if (clickDebounce()) {
                 val clickedTrack = trackHistoryAdapter.getItems()[position]
-                writeTrackToPrefs(clickedTrack)
+                tackInteractor.writeTrackForAudioPlayer(clickedTrack)
                 val displayIntent = Intent(this, AudioPlayerActivity::class.java)
                 startActivity(displayIntent)
             }
@@ -179,7 +176,7 @@ class SearchActivity : AppCompatActivity() {
 
         clearHistoryButton.setOnClickListener {
             trackHistoryAdapter.updateData(listOf())
-            sharedPreferences.edit().clear().apply()
+            tackInteractor.clearTracksHistory()
             searchHistory.visibility = View.GONE
         }
     }
@@ -241,29 +238,6 @@ class SearchActivity : AppCompatActivity() {
         actualInput = savedInstanceState.getString(INPUT_KEY, "")
         inputEditText.setText(actualInput)
         inputEditText.setSelection(actualInput.length)
-    }
-
-    private fun readTracksFromPrefs(): List<Track> {
-        val json = sharedPreferences.getString(TRACK_HISTORY_KEY, null)
-        return if (!json.isNullOrEmpty()) {
-            GsonProvider.gson.fromJson(json, Array<Track>::class.java).toList()
-        } else {
-            emptyList()
-        }
-    }
-
-    private fun writeTracksToPrefs(tracks: Array<Track>) {
-        val json = GsonProvider.gson.toJson(tracks)
-        sharedPreferences.edit()
-            .putString(TRACK_HISTORY_KEY, json)
-            .apply()
-    }
-
-    private fun writeTrackToPrefs(track: Track) {
-        val json = GsonProvider.gson.toJson(track)
-        sharedPreferences.edit()
-            .putString(TRACK_TO_AUDIO_PLAYER_KEY, json)
-            .apply()
     }
 
     private fun clickDebounce(): Boolean {

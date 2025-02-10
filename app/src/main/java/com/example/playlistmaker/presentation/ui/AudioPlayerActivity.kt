@@ -1,4 +1,4 @@
-package com.example.playlistmaker.data.ui
+package com.example.playlistmaker.presentation.ui
 
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -10,11 +10,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
-import com.example.playlistmaker.domain.api.GsonProvider
+import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
-import com.example.playlistmaker.domain.models.Track
-import com.example.playlistmaker.domain.api.DataConst.SEARCH_PREFS
-import com.example.playlistmaker.domain.api.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
+import com.example.playlistmaker.domain.api.TrackInteractor
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -33,11 +31,13 @@ class AudioPlayerActivity : AppCompatActivity() {
     private var mediaPlayer = MediaPlayer()
     private var playerState = STATE_DEFAULT
     private var handler: Handler? = null
+    private lateinit var tackInteractor: TrackInteractor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audioplayer)
 
+        tackInteractor = Creator.provideTrackInteractor()
         val toolbar = findViewById<Toolbar>(R.id.apToolbar)
         val trackImage = findViewById<ImageView>(R.id.apTrackImage)
         val trackName = findViewById<TextView>(R.id.apTrackName)
@@ -55,7 +55,7 @@ class AudioPlayerActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        val actualTrack = readTrackFromPrefs()
+        val actualTrack = tackInteractor.readTrackForAudioPlayer()
 
         if (actualTrack != null) {
             Glide.with(this)
@@ -70,12 +70,8 @@ class AudioPlayerActivity : AppCompatActivity() {
                 trackArtistName.text =
                     actualTrack.artistName
             }
-            if (actualTrack.trackTimeMillis != null) {
-                trackDuration.text =
-                    SimpleDateFormat(
-                        "mm:ss",
-                        Locale.getDefault()
-                    ).format(actualTrack.trackTimeMillis)
+            if (!actualTrack.trackTime.isNullOrEmpty()) {
+                trackDuration.text = actualTrack.trackTime
             }
             if (!actualTrack.collectionName.isNullOrEmpty()) {
                 trackAlbum.text =
@@ -104,16 +100,6 @@ class AudioPlayerActivity : AppCompatActivity() {
 
         playButton.setOnClickListener {
             playbackControl()
-        }
-    }
-
-    private fun readTrackFromPrefs(): Track? {
-        val sharedPreferences = getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
-        val json = sharedPreferences.getString(TRACK_TO_AUDIO_PLAYER_KEY, null)
-        return if (!json.isNullOrEmpty()) {
-            GsonProvider.gson.fromJson(json, Track::class.java)
-        } else {
-            null
         }
     }
 

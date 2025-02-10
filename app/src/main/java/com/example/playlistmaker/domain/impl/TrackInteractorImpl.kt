@@ -1,7 +1,9 @@
 package com.example.playlistmaker.domain.impl
 
+import android.content.Context
 import com.example.playlistmaker.domain.api.TrackInteractor
 import com.example.playlistmaker.domain.api.TrackRepository
+import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.domain.models.TrackSearchResult
 import java.util.concurrent.Executors
 
@@ -20,4 +22,25 @@ class TrackInteractorImpl(private val repository: TrackRepository) : TrackIntera
             }
         }
     }
+
+    override fun getTracksHistory(context: Context): List<Track> {
+        return repository.getTrackHistory()
+    }
+
+    override fun writeTracksHistory(tracks: Array<Track>, context: Context) {
+        repository.saveTrackHistory(tracks)
+    }
+
+    override fun clearTracksHistory() {
+        repository.clearTrackHistory()
+    }
+
+    override fun writeTrackForAudioPlayer(track: Track) {
+        repository.saveTrackForAudioPlayer(track)
+    }
+
+    override fun readTrackForAudioPlayer(): Track? {
+        return repository.getTrackForAudioPlayer()
+    }
+
 }
