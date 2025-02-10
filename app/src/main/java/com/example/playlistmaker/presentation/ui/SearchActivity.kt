@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui
 
 import android.content.Context
 import android.content.Intent
@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -21,37 +20,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.example.playlistmaker.DataConst.SEARCH_PREFS
-import com.example.playlistmaker.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.example.playlistmaker.Creator
+import com.example.playlistmaker.R
+import com.example.playlistmaker.data.DataConst.SEARCH_PREFS
+import com.example.playlistmaker.domain.api.TrackInteractor
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.domain.models.TrackSearchResult
+import com.example.playlistmaker.presentation.TrackAdapter
 
 class SearchActivity : AppCompatActivity() {
     companion object {
-        private const val BASE_URL = "https://itunes.apple.com"
         private const val INPUT_KEY = "ACTUAL_TEXT"
-        private const val TRACK_HISTORY_KEY = "tracks"
         private const val TRACK_HISTORY_SIZE = 10
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
+    private lateinit var tackInteractor: TrackInteractor
     private lateinit var sharedPreferences: SharedPreferences
-
-    private val retrofit: Retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    private val apiService: ItunesApi by lazy {
-        retrofit.create(ItunesApi::class.java)
-    }
-
     private var actualInput: String = ""
     private lateinit var inputEditText: EditText
     private lateinit var tracks: List<Track>
@@ -69,6 +55,7 @@ class SearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handler = Handler(Looper.getMainLooper())
+        tackInteractor = Creator.provideTrackInteractor(this)
         sharedPreferences = getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
         setContentView(R.layout.activity_search)
 
@@ -85,7 +72,7 @@ class SearchActivity : AppCompatActivity() {
         errorText = findViewById(R.id.errorText)
         tracks = arrayListOf()
         trackAdapter = TrackAdapter(tracks)
-        val tracksSearchHistory = readTracksFromPrefs()
+        val tracksSearchHistory = tackInteractor.getTracksHistory(this)
         val trackHistoryAdapter = TrackAdapter(tracksSearchHistory)
         val clearHistoryButton: Button = findViewById(R.id.clearSearchHistory)
 
@@ -106,8 +93,8 @@ class SearchActivity : AppCompatActivity() {
                     listToEdit.removeAt(TRACK_HISTORY_SIZE - 1)
                 }
                 listToEdit.add(0, clickedTrack)
-                writeTracksToPrefs(listToEdit.toTypedArray())
-                writeTrackToPrefs(clickedTrack)
+                tackInteractor.writeTracksHistory(listToEdit, this)
+                tackInteractor.writeTrackForAudioPlayer(clickedTrack)
                 trackHistoryAdapter.updateData(listToEdit.toList())
 
                 val displayIntent = Intent(this, AudioPlayerActivity::class.java)
@@ -118,7 +105,7 @@ class SearchActivity : AppCompatActivity() {
         trackHistoryAdapter.setOnItemClickListener { position ->
             if (clickDebounce()) {
                 val clickedTrack = trackHistoryAdapter.getItems()[position]
-                writeTrackToPrefs(clickedTrack)
+                tackInteractor.writeTrackForAudioPlayer(clickedTrack)
                 val displayIntent = Intent(this, AudioPlayerActivity::class.java)
                 startActivity(displayIntent)
             }
@@ -178,18 +165,18 @@ class SearchActivity : AppCompatActivity() {
         }
 
         inputEditText.setOnFocusChangeListener { _, hasFocus ->
-                if (hasFocus && inputEditText.text.isEmpty() && trackHistoryAdapter.itemCount != 0) {
-                    progressBar.visibility = View.VISIBLE
-                    searchHistory.visibility = View.VISIBLE
-                    progressBar.visibility = View.GONE
-                } else {
-                    searchHistory.visibility = View.GONE
-                }
+            if (hasFocus && inputEditText.text.isEmpty() && trackHistoryAdapter.itemCount != 0) {
+                progressBar.visibility = View.VISIBLE
+                searchHistory.visibility = View.VISIBLE
+                progressBar.visibility = View.GONE
+            } else {
+                searchHistory.visibility = View.GONE
+            }
         }
 
         clearHistoryButton.setOnClickListener {
             trackHistoryAdapter.updateData(listOf())
-            sharedPreferences.edit().clear().apply()
+            tackInteractor.clearTracksHistory()
             searchHistory.visibility = View.GONE
         }
     }
@@ -197,49 +184,42 @@ class SearchActivity : AppCompatActivity() {
     private fun searchTracks() {
         progressBar.visibility = View.VISIBLE
         rvTrack.visibility = View.GONE
-        apiService.searchTracks(actualInput).enqueue(object : Callback<TrackResponse> {
-            override fun onResponse(
-                call: Call<TrackResponse>,
-                response: Response<TrackResponse>
-            ) {
-                val body = response.body()
-                if (response.isSuccessful && body != null) {
-                    progressBar.visibility = View.GONE
-                    tracks = body.results
-                    //оставляем только треки у аудио книг нет trackId
-                    tracks = tracks.mapNotNull { track ->
-                        if (track.trackId != null) {
-                            track
-                        } else {
-                            null
-                        }
-                    }
-                    if (tracks.isEmpty()) {
+        errorElement.visibility = View.GONE
+
+        tackInteractor.searchTracks(actualInput, object : TrackInteractor.TrackConsumer {
+            override fun consume(actualResult: TrackSearchResult) {
+                if (actualResult.isError) {
+                    handler?.post {
+                        progressBar.visibility = View.GONE
                         trackAdapter.clear()
                         rvTrack.visibility = View.GONE
                         errorElement.visibility = View.VISIBLE
-                        errorImage.setImageResource(R.drawable.track_not_found)
-                        errorText.setText(R.string.nothing_found)
-                        refreshButton.visibility = View.GONE
-                        return
+                        errorImage.setImageResource(R.drawable.track_search_error)
+                        errorText.setText(R.string.connection_error)
+                        refreshButton.visibility = View.VISIBLE
                     }
-                    trackAdapter.updateData(tracks)
-                    rvTrack.visibility = View.VISIBLE
-                    errorElement.visibility = View.GONE
+                } else {
+                    handler?.post {
+                        tracks = actualResult.tracks
+                        if (tracks.isEmpty()) {
+                            trackAdapter.clear()
+                            rvTrack.visibility = View.GONE
+                            errorElement.visibility = View.VISIBLE
+                            errorImage.setImageResource(R.drawable.track_not_found)
+                            errorText.setText(R.string.nothing_found)
+                            refreshButton.visibility = View.GONE
+                        } else {
+                            trackAdapter.updateData(tracks)
+                            rvTrack.visibility = View.VISIBLE
+                            errorElement.visibility = View.GONE
+                        }
+                        progressBar.visibility = View.GONE
+                    }
                 }
             }
-
-            override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
-                progressBar.visibility = View.GONE
-                trackAdapter.clear()
-                rvTrack.visibility = View.GONE
-                errorElement.visibility = View.VISIBLE
-                errorImage.setImageResource(R.drawable.track_search_error)
-                errorText.setText(R.string.connection_error)
-                refreshButton.visibility = View.VISIBLE
-                Log.e("Retrofit", "Request failed", t)
-            }
         })
+
+
     }
 
     private val searchRunnable = Runnable { searchTracks() }
@@ -258,29 +238,6 @@ class SearchActivity : AppCompatActivity() {
         actualInput = savedInstanceState.getString(INPUT_KEY, "")
         inputEditText.setText(actualInput)
         inputEditText.setSelection(actualInput.length)
-    }
-
-    private fun readTracksFromPrefs(): List<Track> {
-        val json = sharedPreferences.getString(TRACK_HISTORY_KEY, null)
-        return if (!json.isNullOrEmpty()) {
-            GsonProvider.gson.fromJson(json, Array<Track>::class.java).toList()
-        } else {
-            emptyList()
-        }
-    }
-
-    private fun writeTracksToPrefs(tracks: Array<Track>) {
-        val json = GsonProvider.gson.toJson(tracks)
-        sharedPreferences.edit()
-            .putString(TRACK_HISTORY_KEY, json)
-            .apply()
-    }
-
-    private fun writeTrackToPrefs(track: Track) {
-        val json = GsonProvider.gson.toJson(track)
-        sharedPreferences.edit()
-            .putString(TRACK_TO_AUDIO_PLAYER_KEY, json)
-            .apply()
     }
 
     private fun clickDebounce(): Boolean {

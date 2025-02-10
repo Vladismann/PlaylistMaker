@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui
 
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -10,8 +10,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
-import com.example.playlistmaker.DataConst.SEARCH_PREFS
-import com.example.playlistmaker.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
+import com.example.playlistmaker.Creator
+import com.example.playlistmaker.R
+import com.example.playlistmaker.domain.api.TrackInteractor
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -30,11 +31,13 @@ class AudioPlayerActivity : AppCompatActivity() {
     private var mediaPlayer = MediaPlayer()
     private var playerState = STATE_DEFAULT
     private var handler: Handler? = null
+    private lateinit var tackInteractor: TrackInteractor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audioplayer)
 
+        tackInteractor = Creator.provideTrackInteractor(this)
         val toolbar = findViewById<Toolbar>(R.id.apToolbar)
         val trackImage = findViewById<ImageView>(R.id.apTrackImage)
         val trackName = findViewById<TextView>(R.id.apTrackName)
@@ -52,7 +55,7 @@ class AudioPlayerActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        val actualTrack = readTrackFromPrefs()
+        val actualTrack = tackInteractor.readTrackForAudioPlayer()
 
         if (actualTrack != null) {
             Glide.with(this)
@@ -67,12 +70,8 @@ class AudioPlayerActivity : AppCompatActivity() {
                 trackArtistName.text =
                     actualTrack.artistName
             }
-            if (actualTrack.trackTimeMillis != null) {
-                trackDuration.text =
-                    SimpleDateFormat(
-                        "mm:ss",
-                        Locale.getDefault()
-                    ).format(actualTrack.trackTimeMillis)
+            if (!actualTrack.trackTime.isNullOrEmpty()) {
+                trackDuration.text = actualTrack.trackTime
             }
             if (!actualTrack.collectionName.isNullOrEmpty()) {
                 trackAlbum.text =
@@ -104,28 +103,22 @@ class AudioPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun readTrackFromPrefs(): Track? {
-        val sharedPreferences = getSharedPreferences(SEARCH_PREFS, MODE_PRIVATE)
-        val json = sharedPreferences.getString(TRACK_TO_AUDIO_PLAYER_KEY, null)
-        return if (!json.isNullOrEmpty()) {
-            GsonProvider.gson.fromJson(json, Track::class.java)
-        } else {
-            null
-        }
-    }
-
     private fun preparePlayer(url: String?) {
-        mediaPlayer.setDataSource(url)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            playButton.setBackgroundResource(R.drawable.play_audio_button)
-            playerState = STATE_PREPARED
-        }
-        mediaPlayer.setOnCompletionListener {
-            playerState = STATE_PREPARED
-            handler?.removeCallbacks(playbackTimeRunnable)
-            trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(0L)
-            playButton.setBackgroundResource(R.drawable.play_audio_button)
+        if (url != null) {
+            mediaPlayer.setDataSource(url)
+            mediaPlayer.prepareAsync()
+            mediaPlayer.setOnPreparedListener {
+                playButton.setBackgroundResource(R.drawable.play_audio_button)
+                playerState = STATE_PREPARED
+            }
+            mediaPlayer.setOnCompletionListener {
+                playerState = STATE_PREPARED
+                handler?.removeCallbacks(playbackTimeRunnable)
+                trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(0L)
+                playButton.setBackgroundResource(R.drawable.play_audio_button)
+            }
+        } else {
+            return
         }
     }
 
@@ -144,10 +137,11 @@ class AudioPlayerActivity : AppCompatActivity() {
     }
 
     private fun playbackControl() {
-        when(playerState) {
+        when (playerState) {
             STATE_PLAYING -> {
                 pausePlayer()
             }
+
             STATE_PREPARED, STATE_PAUSED -> {
                 startPlayer()
             }
@@ -166,7 +160,8 @@ class AudioPlayerActivity : AppCompatActivity() {
     }
 
     private val playbackTimeRunnable = Runnable {
-        trackPlayTime.text = SimpleDateFormat("m:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
+        trackPlayTime.text =
+            SimpleDateFormat("m:ss", Locale.getDefault()).format(mediaPlayer.currentPosition)
         playbackTimeForward()
     }
 

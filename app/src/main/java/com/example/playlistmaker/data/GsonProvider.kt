@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.data
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

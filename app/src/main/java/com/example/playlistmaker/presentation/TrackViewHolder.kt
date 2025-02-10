@@ -1,12 +1,12 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation
 
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.example.playlistmaker.R
+import com.example.playlistmaker.domain.models.Track
 
 class TrackViewHolder(itemView: View, private val listener: OnItemClickListener?) :
     RecyclerView.ViewHolder(itemView) {
@@ -28,13 +28,11 @@ class TrackViewHolder(itemView: View, private val listener: OnItemClickListener?
     fun bind(item: Track) {
         var actualName = item.trackName
         var actualArtistName = item.artistName
+        var actualTrackTime = item.trackTime
 
-        val actualTrackTime: String = if (item.trackTimeMillis == null) {
-            SimpleDateFormat("mm:ss", Locale.getDefault()).format(0L)
-        } else {
-            SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTimeMillis)
+        if (actualTrackTime.isNullOrBlank()) {
+            actualTrackTime = "0:00"
         }
-
         if (actualName.isNullOrBlank()) {
             actualName = itemView.context.getString(R.string.text_null)
         }
