@@ -18,13 +18,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class TrackViewModel(
-    tracksInteractor: TrackInteractor, private val trackPlayer: TrackPlayerInteractor
-) : ViewModel() {
+class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer: TrackPlayerInteractor) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
-    private val playStatusLiveData = MutableLiveData<PlayStatus>()
-    private val currentTimeLiveData = MutableLiveData<String>()
     private val handler = Handler(Looper.getMainLooper())
 
     private var isPaused = false
@@ -35,10 +31,6 @@ class TrackViewModel(
             screenStateLiveData.postValue(TrackScreenState.Content(track!!))
         }
     }
-
-    fun getScreenStateLiveData(): LiveData<TrackScreenState> = screenStateLiveData
-    fun getPlayStatusLiveData(): LiveData<PlayStatus> = playStatusLiveData
-    fun getCurrentTimeLiveData(): LiveData<String> = currentTimeLiveData
 
     companion object {
         fun getViewModelFactory(context: Context): ViewModelProvider.Factory = viewModelFactory {
@@ -51,31 +43,28 @@ class TrackViewModel(
         }
     }
 
+    fun getScreenStateLiveData(): LiveData<TrackScreenState> = screenStateLiveData
+
     fun play() {
         if (!isPaused) {
             trackPlayer.preparePlayer(track?.previewUrl)
         }
         trackPlayer.setStatusObserver(object : TrackPlayer.StatusObserver {
             override fun onStop() {
-                playStatusLiveData.postValue(
-                    getCurrentPlayStatus().copy(
-                        progress = 0, isPlaying = false
-                    )
-                )
+                updatePlayerState { it.copy(isPlaying = false, progress = 0, currentTime = "0:00") }
                 handler.removeCallbacks(updateTimeRunnable)
-                currentTimeLiveData.postValue("0:00")
                 isPaused = false
             }
 
             override fun onPlay() {
                 trackPlayer.startPlayer()
-                playStatusLiveData.postValue(getCurrentPlayStatus().copy(isPlaying = true))
+                updatePlayerState { it.copy(isPlaying = true) }
                 handler.post(updateTimeRunnable)
                 isPaused = false
             }
 
             override fun onResume() {
-                playStatusLiveData.postValue(getCurrentPlayStatus().copy(isPlaying = true))
+                updatePlayerState { it.copy(isPlaying = true) }
                 handler.post(updateTimeRunnable)
                 isPaused = false
             }
@@ -86,11 +75,7 @@ class TrackViewModel(
     fun pause() {
         trackPlayer.pausePlayer()
         handler.removeCallbacks(updateTimeRunnable)
-        playStatusLiveData.postValue(
-            getCurrentPlayStatus().copy(
-                progress = trackPlayer.getCurrentPosition(), isPlaying = false
-            )
-        )
+        updatePlayerState { it.copy(isPlaying = false, progress = trackPlayer.getCurrentPosition()) }
         isPaused = true
     }
 
@@ -99,28 +84,25 @@ class TrackViewModel(
             isPaused = false
             trackPlayer.resumePlayer()
             handler.post(updateTimeRunnable)
-            playStatusLiveData.postValue(
-                getCurrentPlayStatus().copy(
-                    progress = trackPlayer.getCurrentPosition(), isPlaying = true
-                )
-            )
+            updatePlayerState { it.copy(isPlaying = true, progress = trackPlayer.getCurrentPosition()) }
         }
     }
 
-    private fun getCurrentPlayStatus(): PlayStatus {
-        return playStatusLiveData.value ?: PlayStatus(
-            progress = trackPlayer.getCurrentPosition(), isPlaying = false
-        )
+    private fun updatePlayerState(update: (PlayerState) -> PlayerState) {
+        val currentState = screenStateLiveData.value
+        if (currentState is TrackScreenState.Content) {
+            screenStateLiveData.postValue(currentState.copy(playerState = update(currentState.playerState)))
+        }
     }
 
     private val updateTimeRunnable = object : Runnable {
         override fun run() {
             val currentPosition = trackPlayer.getCurrentPosition()
-            val timeString =
-                SimpleDateFormat("m:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
-            currentTimeLiveData.postValue(timeString)
+            val timeString = SimpleDateFormat("m:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
+            updatePlayerState { it.copy(currentTime = timeString) }
 
-            if (playStatusLiveData.value?.isPlaying == true) {
+            val currentState = screenStateLiveData.value
+            if (currentState is TrackScreenState.Content && currentState.playerState.isPlaying) {
                 handler.postDelayed(this, 500)
             }
         }

@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioplayerBinding
+import com.example.playlistmaker.player.view_model.PlayerState
 import com.example.playlistmaker.player.view_model.TrackScreenState
 import com.example.playlistmaker.player.view_model.TrackViewModel
 
@@ -26,32 +27,27 @@ class TrackActivity : ComponentActivity() {
         }
 
         viewModel.getScreenStateLiveData().observe(this) { screenState ->
-            if (screenState is TrackScreenState.Content) {
-                loadTrackInfo(screenState)
+            when (screenState) {
+                is TrackScreenState.Content -> {
+                    loadTrackInfo(screenState)
+                    updatePlayerUI(screenState.playerState)
+                }
+                else -> {
+                }
             }
-        }
-
-        viewModel.getPlayStatusLiveData().observe(this) { playStatus ->
-            if (playStatus.isPlaying) {
-                binding.apPlayAudioButton.setBackgroundResource(R.drawable.pause_audio_button)
-            } else {
-                binding.apPlayAudioButton.setBackgroundResource(R.drawable.play_audio_button)
-            }
-        }
-
-        viewModel.getCurrentTimeLiveData().observe(this) { currentTime ->
-            binding.apPlayingTime.text = currentTime
         }
 
         binding.apPlayAudioButton.setOnClickListener {
-            val playStatus = viewModel.getPlayStatusLiveData().value
-            if (playStatus?.isPlaying == true) {
-                viewModel.pause()  // Если воспроизведение идет, ставим на паузу
-            } else {
-                if ((playStatus?.progress ?: 0) > 0) {
-                    viewModel.resumePlayer()  // Если прогресс больше 0, возобновляем воспроизведение
+            val screenState = viewModel.getScreenStateLiveData().value
+            if (screenState is TrackScreenState.Content) {
+                if (screenState.playerState.isPlaying) {
+                    viewModel.pause()
                 } else {
-                    viewModel.play()  // Если трек не был запущен, начинаем с начала
+                    if (screenState.playerState.progress > 0) {
+                        viewModel.resumePlayer()
+                    } else {
+                        viewModel.play()
+                    }
                 }
             }
         }
@@ -69,5 +65,14 @@ class TrackActivity : ComponentActivity() {
         binding.apActualYear.text = screenState.track.releaseDate
         binding.apActualGenre.text = screenState.track.primaryGenreName
         binding.apActualCountry.text = screenState.track.country
+    }
+
+    private fun updatePlayerUI(playerState: PlayerState) {
+        if (playerState.isPlaying) {
+            binding.apPlayAudioButton.setBackgroundResource(R.drawable.pause_audio_button)
+        } else {
+            binding.apPlayAudioButton.setBackgroundResource(R.drawable.play_audio_button)
+        }
+        binding.apPlayingTime.text = playerState.currentTime
     }
 }
