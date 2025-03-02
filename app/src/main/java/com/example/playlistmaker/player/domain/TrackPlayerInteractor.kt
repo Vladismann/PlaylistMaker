@@ -1,6 +1,6 @@
 package com.example.playlistmaker.player.domain
 
-import com.example.playlistmaker.player.data.TrackPlayer.StatusObserver
+import com.example.playlistmaker.player.domain.TrackPlayer.StatusObserver
 
 interface TrackPlayerInteractor {
     fun preparePlayer(url: String?)

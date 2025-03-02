@@ -1,4 +1,4 @@
-package com.example.playlistmaker.player.data
+package com.example.playlistmaker.player.domain
 
 interface TrackPlayer {
     fun preparePlayer(url: String?)

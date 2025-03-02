@@ -1,7 +1,7 @@
 package com.example.playlistmaker.creator
 
 import android.content.Context
-import com.example.playlistmaker.player.data.TrackPlayer
+import com.example.playlistmaker.player.domain.TrackPlayer
 import com.example.playlistmaker.player.data.TrackPlayerImpl
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.player.domain.TrackPlayerInteractorImpl

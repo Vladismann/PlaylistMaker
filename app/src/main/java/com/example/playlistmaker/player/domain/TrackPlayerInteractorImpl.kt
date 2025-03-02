@@ -1,7 +1,5 @@
 package com.example.playlistmaker.player.domain
 
-import com.example.playlistmaker.player.data.TrackPlayer
-
 class TrackPlayerInteractorImpl(private val repository: TrackPlayer)  : TrackPlayerInteractor {
 
     override fun preparePlayer(url: String?) {
