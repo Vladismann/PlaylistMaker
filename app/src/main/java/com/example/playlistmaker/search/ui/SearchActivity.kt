@@ -3,6 +3,8 @@ package com.example.playlistmaker.search.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -19,6 +21,9 @@ import com.example.playlistmaker.search.view_model.SearchViewModel
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding
+    private var isClickAllowed = true
+    private val clickDebounceDelay = 1000L
+    private val handler = Handler(Looper.getMainLooper())
 
     private val viewModel by viewModels<SearchViewModel> {
         SearchViewModel.getViewModelFactory(applicationContext)
@@ -117,7 +122,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         (binding.rvTrack.adapter as TrackAdapter).setOnItemClickListener { position ->
-            if (viewModel.clickDebounce()) {
+            if (clickDebounce()) {
                 val clickedTrack = (binding.rvTrack.adapter as TrackAdapter).getItem(position)
                 viewModel.saveTrackToHistory(clickedTrack)
                 startTrackActivity(clickedTrack)
@@ -125,7 +130,7 @@ class SearchActivity : AppCompatActivity() {
         }
 
         (binding.rvTrackHistory.adapter as TrackAdapter).setOnItemClickListener { position ->
-            if (viewModel.clickDebounce()) {
+            if (clickDebounce()) {
                 val clickedTrack =
                     (binding.rvTrackHistory.adapter as TrackAdapter).getItem(position)
                 startTrackActivity(clickedTrack)
@@ -156,6 +161,15 @@ class SearchActivity : AppCompatActivity() {
     private fun hideKeyboard() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+    }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, clickDebounceDelay)
+        }
+        return current
     }
 }
 

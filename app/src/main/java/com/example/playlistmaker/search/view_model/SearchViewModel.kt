@@ -18,7 +18,6 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
-        private const val CLICK_DEBOUNCE_DELAY = 1000L
         private const val TRACK_HISTORY_SIZE = 10
 
         fun getViewModelFactory(context: Context): ViewModelProvider.Factory = viewModelFactory {
@@ -33,7 +32,6 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     val searchScreenState: LiveData<SearchScreenState> = screenState
 
     private val handler = Handler(Looper.getMainLooper())
-    private var isClickAllowed = true
 
     init {
         loadSearchHistory()
@@ -95,14 +93,5 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     fun loadSearchHistory() {
         val history = trackInteractor.getTracksHistory()
         screenState.value = SearchScreenState.Content(tracks = emptyList(), historyTracks = history, query = "")
-    }
-
-    fun clickDebounce(): Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-        }
-        return current
     }
 }
