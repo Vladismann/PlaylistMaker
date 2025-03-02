@@ -26,17 +26,17 @@ private var data: List<Track>
         notifyDataSetChanged()
     }
 
-    fun getItem(position: Int): Track {
-        return data[position]
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false)
-        return TrackViewHolder(view, listener)
+        return TrackViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
-        holder.bind(data[position])
+        val track = data[position]
+        holder.bind(track)
+        holder.itemView.setOnClickListener {
+            listener?.onItemClick(track)
+        }
     }
 
     override fun getItemCount(): Int {

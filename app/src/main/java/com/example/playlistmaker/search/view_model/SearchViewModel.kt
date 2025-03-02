@@ -68,8 +68,7 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     }
 
     fun saveTrackToHistory(track: Track) {
-        val currentHistory =
-            (screenState.value as? SearchScreenState.Content)?.historyTracks?.toMutableList() ?: mutableListOf()
+        val currentHistory = trackInteractor.getTracksHistory().toMutableList()
 
         currentHistory.remove(track)
         if (currentHistory.size == TRACK_HISTORY_SIZE) {

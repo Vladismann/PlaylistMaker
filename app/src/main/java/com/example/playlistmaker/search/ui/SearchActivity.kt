@@ -121,19 +121,19 @@ class SearchActivity : AppCompatActivity() {
             viewModel.searchDebounce(binding.inputSearch.text.toString())
         }
 
-        (binding.rvTrack.adapter as TrackAdapter).setOnItemClickListener { position ->
+        (binding.rvTrack.adapter as TrackAdapter).setOnItemClickListener { track ->
             if (clickDebounce()) {
-                val clickedTrack = (binding.rvTrack.adapter as TrackAdapter).getItem(position)
-                viewModel.saveTrackToHistory(clickedTrack)
-                startTrackActivity(clickedTrack)
+                binding.searchProgressBar.visibility = View.VISIBLE
+                viewModel.saveTrackToHistory(track)
+                startTrackActivity(track)
             }
         }
 
-        (binding.rvTrackHistory.adapter as TrackAdapter).setOnItemClickListener { position ->
+        (binding.rvTrackHistory.adapter as TrackAdapter).setOnItemClickListener { track ->
             if (clickDebounce()) {
-                val clickedTrack =
-                    (binding.rvTrackHistory.adapter as TrackAdapter).getItem(position)
-                startTrackActivity(clickedTrack)
+                binding.searchProgressBar.visibility = View.VISIBLE
+                viewModel.saveTrackToHistory(track)
+                startTrackActivity(track)
             }
         }
 

@@ -8,17 +8,8 @@ import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.search.domain.models.Track
 
-class TrackViewHolder(itemView: View, private val listener: OnItemClickListener?) :
+class TrackViewHolder(itemView: View) :
     RecyclerView.ViewHolder(itemView) {
-
-    init {
-        itemView.setOnClickListener {
-            val position = adapterPosition
-            if (position != RecyclerView.NO_POSITION) {
-                listener?.onItemClick(position)
-            }
-        }
-    }
 
     private val tvTrackName: TextView = itemView.findViewById(R.id.tvTrackName)
     private val tvTrackArtistName: TextView = itemView.findViewById(R.id.tvTrackArtistName)
