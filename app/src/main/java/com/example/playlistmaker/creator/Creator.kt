@@ -10,6 +10,10 @@ import com.example.playlistmaker.search.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.search.domain.api.TrackInteractor
 import com.example.playlistmaker.search.domain.api.TrackRepository
 import com.example.playlistmaker.search.domain.impl.TrackInteractorImpl
+import com.example.playlistmaker.settings.data.ThemePreferencesRepositoryImpl
+import com.example.playlistmaker.settings.domain.ThemePreferenceInteractor
+import com.example.playlistmaker.settings.domain.ThemePreferenceInteractorImpl
+import com.example.playlistmaker.settings.domain.ThemePreferencesRepository
 
 object Creator {
 
@@ -27,5 +31,13 @@ object Creator {
 
     fun provideTrackPlayerInteractor(): TrackPlayerInteractor {
             return TrackPlayerInteractorImpl(getTrackPlayer())
+    }
+
+    private fun getThemePreferencesRepository(context: Context): ThemePreferencesRepository {
+        return ThemePreferencesRepositoryImpl(context)
+    }
+
+    fun provideThemePreferenceInteractor(context: Context): ThemePreferenceInteractor {
+        return ThemePreferenceInteractorImpl(getThemePreferencesRepository(context))
     }
 }

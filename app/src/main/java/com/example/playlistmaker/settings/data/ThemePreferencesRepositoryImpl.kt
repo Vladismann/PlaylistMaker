@@ -1,11 +1,14 @@
-package com.example.playlistmaker.settings.model
+package com.example.playlistmaker.settings.data
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
+import androidx.appcompat.app.AppCompatDelegate
+import com.example.playlistmaker.settings.domain.ThemePreferencesRepository
 
-class ThemePreferences(context: Context) {
+class ThemePreferencesRepositoryImpl(context: Context) : ThemePreferencesRepository {
+
     companion object {
         const val PREFS_NAME = "AppThemePrefs"
         const val DARK_THEME_KEY = "dark"
@@ -14,8 +17,8 @@ class ThemePreferences(context: Context) {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val resources: Resources = context.resources
 
-    fun getCurrentTheme(): Boolean {
-        if (!sharedPreferences.contains(DARK_THEME_KEY)) { // для первого запуска, ориентируемся на тему пользователя, далее по настройкам
+    override fun getCurrentTheme(): Boolean {
+        if (!sharedPreferences.contains(DARK_THEME_KEY)) { // Для первого запуска, ориентируемся на тему пользователя, далее по настройкам
             val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
             setDarkTheme(currentNightMode == Configuration.UI_MODE_NIGHT_YES)
         }
@@ -24,9 +27,14 @@ class ThemePreferences(context: Context) {
 
     private fun setDarkTheme(enabled: Boolean) {
         sharedPreferences.edit().putBoolean(DARK_THEME_KEY, enabled).apply()
+        if (enabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
     }
 
-    fun switchTheme(darkThemeEnabled: Boolean) {
+    override fun switchTheme(darkThemeEnabled: Boolean) {
         setDarkTheme(darkThemeEnabled)
     }
 }
