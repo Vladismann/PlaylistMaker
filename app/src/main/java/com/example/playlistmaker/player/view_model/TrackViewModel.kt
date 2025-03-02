@@ -10,14 +10,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.playlistmaker.creator.Creator
-import com.example.playlistmaker.player.domain.TrackPlayer
+import com.example.playlistmaker.player.data.TrackPlayer
+import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.search.domain.api.TrackInteractor
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class TrackViewModel(
-    tracksInteractor: TrackInteractor, private val trackPlayer: TrackPlayer
+    tracksInteractor: TrackInteractor, private val trackPlayer: TrackPlayerInteractor
 ) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
@@ -42,7 +43,7 @@ class TrackViewModel(
         fun getViewModelFactory(context: Context): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val interactor = Creator.provideTrackInteractor(context)
-                val player = Creator.provideTrackPlayer()
+                val player = Creator.provideTrackPlayerInteractor()
 
                 TrackViewModel(interactor, player)
             }

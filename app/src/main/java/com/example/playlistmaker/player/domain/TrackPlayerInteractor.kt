@@ -1,6 +1,8 @@
 package com.example.playlistmaker.player.domain
 
-interface TrackPlayer {
+import com.example.playlistmaker.player.data.TrackPlayer.StatusObserver
+
+interface TrackPlayerInteractor {
     fun preparePlayer(url: String)
     fun startPlayer()
     fun pausePlayer()
@@ -8,10 +10,4 @@ interface TrackPlayer {
     fun resumePlayer()
     fun getCurrentPosition(): Int
     fun setStatusObserver(observer: StatusObserver)
-
-    interface StatusObserver {
-        fun onStop()
-        fun onPlay()
-        fun onResume()
-    }
 }

@@ -1,8 +1,10 @@
 package com.example.playlistmaker.creator
 
 import android.content.Context
-import com.example.playlistmaker.player.domain.TrackPlayer
-import com.example.playlistmaker.player.domain.TrackPlayerImpl
+import com.example.playlistmaker.player.data.TrackPlayer
+import com.example.playlistmaker.player.data.TrackPlayerImpl
+import com.example.playlistmaker.player.domain.TrackPlayerInteractor
+import com.example.playlistmaker.player.domain.TrackPlayerInteractorImpl
 import com.example.playlistmaker.search.data.TrackRepositoryImpl
 import com.example.playlistmaker.search.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.search.domain.api.TrackInteractor
@@ -19,7 +21,11 @@ object Creator {
         return TrackInteractorImpl(getTrackRepository(context))
     }
 
-    fun provideTrackPlayer(): TrackPlayer {
+    private fun getTrackPlayer(): TrackPlayer {
         return TrackPlayerImpl()
+    }
+
+    fun provideTrackPlayerInteractor(): TrackPlayerInteractor {
+            return TrackPlayerInteractorImpl(getTrackPlayer())
     }
 }
