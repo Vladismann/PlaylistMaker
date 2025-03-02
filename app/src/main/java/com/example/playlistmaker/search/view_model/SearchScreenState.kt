@@ -6,7 +6,11 @@ sealed class SearchScreenState {
     data object Loading : SearchScreenState()
     data class Content(
         val tracks: List<Track>,
+        val historyTracks: List<Track>,
+        val query: String
     ) : SearchScreenState()
 
-    data object Error : SearchScreenState()
+    data class Error(
+        val showRefresh: Boolean
+    ) : SearchScreenState()
 }

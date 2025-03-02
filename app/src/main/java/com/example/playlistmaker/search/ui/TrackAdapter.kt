@@ -26,10 +26,6 @@ private var data: List<Track>
         notifyDataSetChanged()
     }
 
-    fun getItems() : List<Track> {
-        return data
-    }
-
     fun getItem(position: Int): Track {
         return data[position]
     }

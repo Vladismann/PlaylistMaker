@@ -14,6 +14,7 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.player.ui.TrackActivity
 import com.example.playlistmaker.search.domain.models.Track
+import com.example.playlistmaker.search.view_model.SearchScreenState
 import com.example.playlistmaker.search.view_model.SearchViewModel
 
 class SearchActivity : AppCompatActivity() {
@@ -37,30 +38,38 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.searchResults.observe(this) { tracks ->
-            if (viewModel.errorState.value == true) {
-                showError(R.drawable.track_search_error, R.string.connection_error, true)
-            } else if (tracks.isEmpty()) {
-                showError(R.drawable.track_not_found, R.string.nothing_found, false)
-            } else {
-                (binding.rvTrack.adapter as TrackAdapter).updateData(tracks)
-                binding.rvTrack.visibility = View.VISIBLE
-                binding.errorMessageElement.visibility = View.GONE
-            }
-            binding.searchProgressBar.visibility = View.GONE
-        }
+        viewModel.searchScreenState.observe(this) { state ->
+            when (state) {
+                is SearchScreenState.Loading -> {
+                    binding.searchProgressBar.visibility = View.VISIBLE
+                    binding.errorMessageElement.visibility = View.GONE
+                    binding.rvTrack.visibility = View.GONE
+                    binding.historyElement.visibility = View.GONE
+                }
 
-        viewModel.loadingState.observe(this) { isLoading ->
-            binding.searchProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
+                is SearchScreenState.Content -> {
+                    binding.searchProgressBar.visibility = View.GONE
+                    binding.errorMessageElement.visibility = View.GONE
 
-        viewModel.historyTracks.observe(this) { history ->
-            if (binding.inputSearch.hasFocus() && !binding.inputSearch.text.isNullOrEmpty()) {
-                binding.historyElement.visibility = View.GONE
-            } else {
-                (binding.rvTrackHistory.adapter as TrackAdapter).updateData(history)
-                binding.historyElement.visibility =
-                    if (history.isEmpty()) View.GONE else View.VISIBLE
+                    if (state.tracks.isEmpty() && state.query.isNotBlank()) {
+                        showError(R.drawable.track_not_found, R.string.nothing_found, false)
+                    } else {
+                        (binding.rvTrack.adapter as TrackAdapter).updateData(state.tracks)
+                        binding.rvTrack.visibility = View.VISIBLE
+                    }
+
+                    if (binding.inputSearch.hasFocus() && !binding.inputSearch.text.isNullOrEmpty()) {
+                        binding.historyElement.visibility = View.GONE
+                    } else {
+                        (binding.rvTrackHistory.adapter as TrackAdapter).updateData(state.historyTracks)
+                        binding.historyElement.visibility =
+                            if (state.historyTracks.isEmpty()) View.GONE else View.VISIBLE
+                    }
+                }
+
+                is SearchScreenState.Error -> {
+                    showError(R.drawable.track_search_error, R.string.connection_error, state.showRefresh)
+                }
             }
         }
     }

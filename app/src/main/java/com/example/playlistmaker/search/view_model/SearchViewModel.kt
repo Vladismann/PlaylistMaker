@@ -29,17 +29,8 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
         }
     }
 
-    private val screenSearchResults = MutableLiveData<List<Track>>()
-    val searchResults: LiveData<List<Track>> = screenSearchResults
-
-    private val screenErrorState = MutableLiveData<Boolean>()
-    val errorState: LiveData<Boolean> = screenErrorState
-
-    private val screenLoadingState = MutableLiveData<Boolean>()
-    val loadingState: LiveData<Boolean> = screenLoadingState
-
-    private val screenHistoryTracks = MutableLiveData<List<Track>>()
-    val historyTracks: LiveData<List<Track>> = screenHistoryTracks
+    private val screenState = MutableLiveData<SearchScreenState>(SearchScreenState.Loading)
+    val searchScreenState: LiveData<SearchScreenState> = screenState
 
     private val handler = Handler(Looper.getMainLooper())
     private var isClickAllowed = true
@@ -49,25 +40,24 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     }
 
     private fun searchTracks(query: String) {
-        screenLoadingState.value = true
-        screenErrorState.value = false
+        screenState.value = SearchScreenState.Loading
 
         trackInteractor.searchTracks(query, object : TrackInteractor.TrackConsumer {
             override fun consume(actualResult: TrackSearchResult) {
-                if (query.isBlank()) {
-                    handler.post {
-                        loadSearchHistory()
-                        screenLoadingState.value = false
-                    }
-                    return
-                }
                 handler.post {
-                    screenLoadingState.value = false
-                    if (actualResult.isError) {
-                        screenErrorState.value = true
-                        screenSearchResults.value = emptyList()
+                    if (query.isBlank()) {
+                        loadSearchHistory()
+                    } else if (actualResult.isError) {
+                        screenState.value = SearchScreenState.Error(showRefresh = true)
                     } else {
-                        screenSearchResults.value = actualResult.tracks
+                        val currentHistory = screenState.value?.let {
+                            if (it is SearchScreenState.Content) it.historyTracks else emptyList()
+                        } ?: emptyList()
+
+                        screenState.value = SearchScreenState.Content(
+                            tracks = actualResult.tracks,
+                            historyTracks = currentHistory,
+                            query = query)
                     }
                 }
             }
@@ -80,14 +70,17 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     }
 
     fun saveTrackToHistory(track: Track) {
-        val currentHistory = screenHistoryTracks.value?.toMutableList() ?: mutableListOf()
+        val currentHistory =
+            (screenState.value as? SearchScreenState.Content)?.historyTracks?.toMutableList() ?: mutableListOf()
+
         currentHistory.remove(track)
         if (currentHistory.size == TRACK_HISTORY_SIZE) {
             currentHistory.removeAt(TRACK_HISTORY_SIZE - 1)
         }
         currentHistory.add(0, track)
         trackInteractor.writeTracksHistory(currentHistory)
-        screenHistoryTracks.value = currentHistory
+
+        screenState.value = (screenState.value as? SearchScreenState.Content)?.copy(historyTracks = currentHistory)
     }
 
     fun saveForAudioPlayer(track: Track) {
@@ -96,11 +89,12 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
 
     fun clearHistory() {
         trackInteractor.clearTracksHistory()
-        screenHistoryTracks.value = emptyList()
+        screenState.value = (screenState.value as? SearchScreenState.Content)?.copy(historyTracks = emptyList())
     }
 
     fun loadSearchHistory() {
-        screenHistoryTracks.value = trackInteractor.getTracksHistory()
+        val history = trackInteractor.getTracksHistory()
+        screenState.value = SearchScreenState.Content(tracks = emptyList(), historyTracks = history, query = "")
     }
 
     fun clickDebounce(): Boolean {
