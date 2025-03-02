@@ -12,7 +12,6 @@ import com.example.playlistmaker.player.view_model.TrackViewModel
 class TrackActivity : ComponentActivity() {
 
     private lateinit var binding: ActivityAudioplayerBinding
-    private var url: String? = null
     private val viewModel by viewModels<TrackViewModel> {
         TrackViewModel.getViewModelFactory(applicationContext)
     }
@@ -52,7 +51,7 @@ class TrackActivity : ComponentActivity() {
                 if ((playStatus?.progress ?: 0) > 0) {
                     viewModel.resumePlayer()  // Если прогресс больше 0, возобновляем воспроизведение
                 } else {
-                    viewModel.play(url ?: "")  // Если трек не был запущен, начинаем с начала
+                    viewModel.play()  // Если трек не был запущен, начинаем с начала
                 }
             }
         }
@@ -70,7 +69,5 @@ class TrackActivity : ComponentActivity() {
         binding.apActualYear.text = screenState.track.releaseDate
         binding.apActualGenre.text = screenState.track.primaryGenreName
         binding.apActualCountry.text = screenState.track.country
-
-        url = screenState.track.previewUrl
     }
 }

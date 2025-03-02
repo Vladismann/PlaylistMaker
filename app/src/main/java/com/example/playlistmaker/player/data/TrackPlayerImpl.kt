@@ -15,19 +15,21 @@ class TrackPlayerImpl : TrackPlayer {
 
     private var playerState = STATE_DEFAULT
 
-    override fun preparePlayer(url: String) {
-        if (url.isNotBlank()) {
-            mediaPlayer.release()
-            mediaPlayer = MediaPlayer()
-            mediaPlayer.setDataSource(url)
-            mediaPlayer.prepareAsync()
-            mediaPlayer.setOnPreparedListener {
-                playerState = STATE_PREPARED
-                statusObserver?.onPlay()
-            }
-            mediaPlayer.setOnCompletionListener {
-                playerState = STATE_PREPARED
-                statusObserver?.onStop()
+    override fun preparePlayer(url: String?) {
+        if (url != null) {
+            if (url.isNotBlank()) {
+                mediaPlayer.release()
+                mediaPlayer = MediaPlayer()
+                mediaPlayer.setDataSource(url)
+                mediaPlayer.prepareAsync()
+                mediaPlayer.setOnPreparedListener {
+                    playerState = STATE_PREPARED
+                    statusObserver?.onPlay()
+                }
+                mediaPlayer.setOnCompletionListener {
+                    playerState = STATE_PREPARED
+                    statusObserver?.onStop()
+                }
             }
         }
     }

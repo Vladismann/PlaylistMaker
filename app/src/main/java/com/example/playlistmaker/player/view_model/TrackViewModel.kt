@@ -13,6 +13,7 @@ import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.player.data.TrackPlayer
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.search.domain.api.TrackInteractor
+import com.example.playlistmaker.search.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,11 +28,11 @@ class TrackViewModel(
     private val handler = Handler(Looper.getMainLooper())
 
     private var isPaused = false
+    private var track: Track? = tracksInteractor.readTrackForAudioPlayer()
 
     init {
-        val track = tracksInteractor.readTrackForAudioPlayer()
         if (track != null) {
-            screenStateLiveData.postValue(TrackScreenState.Content(track))
+            screenStateLiveData.postValue(TrackScreenState.Content(track!!))
         }
     }
 
@@ -50,9 +51,9 @@ class TrackViewModel(
         }
     }
 
-    fun play(url: String) {
+    fun play() {
         if (!isPaused) {
-            trackPlayer.preparePlayer(url)
+            trackPlayer.preparePlayer(track?.previewUrl)
         }
         trackPlayer.setStatusObserver(object : TrackPlayer.StatusObserver {
             override fun onStop() {
@@ -120,7 +121,7 @@ class TrackViewModel(
             currentTimeLiveData.postValue(timeString)
 
             if (playStatusLiveData.value?.isPlaying == true) {
-                handler.postDelayed(this, 1000)
+                handler.postDelayed(this, 500)
             }
         }
     }

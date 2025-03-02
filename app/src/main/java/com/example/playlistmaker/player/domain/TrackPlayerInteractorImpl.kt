@@ -4,7 +4,7 @@ import com.example.playlistmaker.player.data.TrackPlayer
 
 class TrackPlayerInteractorImpl(private val repository: TrackPlayer)  : TrackPlayerInteractor {
 
-    override fun preparePlayer(url: String) {
+    override fun preparePlayer(url: String?) {
         repository.preparePlayer(url)
     }
 
