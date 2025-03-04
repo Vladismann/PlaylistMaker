@@ -2,19 +2,18 @@ package com.example.playlistmaker
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.settings.data.ThemePreferencesRepositoryImpl
-import com.example.playlistmaker.settings.domain.ThemePreferencesRepository
+import com.example.playlistmaker.creator.Creator
+import com.example.playlistmaker.settings.domain.ThemePreferenceInteractor
 
 
 class App : Application() {
 
-    private lateinit var themePreferencesRepository: ThemePreferencesRepository
+    private lateinit var themePreferencesInteractor: ThemePreferenceInteractor
 
     override fun onCreate() {
         super.onCreate()
-        themePreferencesRepository = ThemePreferencesRepositoryImpl(this)
-
-        val isDarkTheme = themePreferencesRepository.getCurrentTheme()
+        themePreferencesInteractor = Creator.provideThemePreferenceInteractor(applicationContext)
+        val isDarkTheme = themePreferencesInteractor.getCurrentTheme()
 
         if (isDarkTheme) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)

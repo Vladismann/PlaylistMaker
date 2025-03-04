@@ -40,6 +40,8 @@ class SearchActivity : AppCompatActivity() {
 
         setupObservers()
         setupListeners()
+
+        binding.inputSearch.requestFocus()
     }
 
     private fun setupObservers() {
@@ -66,9 +68,11 @@ class SearchActivity : AppCompatActivity() {
                     if (binding.inputSearch.hasFocus() && !binding.inputSearch.text.isNullOrEmpty()) {
                         binding.historyElement.visibility = View.GONE
                     } else {
-                        (binding.rvTrackHistory.adapter as TrackAdapter).updateData(state.historyTracks)
-                        binding.historyElement.visibility =
-                            if (state.historyTracks.isEmpty()) View.GONE else View.VISIBLE
+                        if (binding.inputSearch.hasFocus()) {
+                            (binding.rvTrackHistory.adapter as TrackAdapter).updateData(state.historyTracks)
+                            binding.historyElement.visibility =
+                                if (state.historyTracks.isEmpty()) View.GONE else View.VISIBLE
+                        }
                     }
                 }
 
