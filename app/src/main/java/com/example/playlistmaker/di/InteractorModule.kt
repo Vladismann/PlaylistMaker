@@ -13,15 +13,15 @@ import org.koin.dsl.module
 
 val trackInteractorModule = module {
 
-    single<TrackInteractor> {
+    factory<TrackInteractor> {
         TrackInteractorImpl(get<TrackRepository>())
     }
 
-    single<TrackPlayerInteractor> {
+    factory<TrackPlayerInteractor> {
         TrackPlayerInteractorImpl(get<TrackPlayer>())
     }
 
-    single<ThemePreferenceInteractor> {
+    factory<ThemePreferenceInteractor> {
         ThemePreferenceInteractorImpl(get<ThemePreferencesRepository>())
     }
 }

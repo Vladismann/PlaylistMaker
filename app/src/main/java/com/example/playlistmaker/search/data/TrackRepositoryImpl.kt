@@ -7,11 +7,13 @@ import com.example.playlistmaker.search.data.network.TrackSearchRequest
 import com.example.playlistmaker.search.data.network.TrackSearchResponse
 import com.example.playlistmaker.search.domain.api.TrackRepository
 import com.example.playlistmaker.search.domain.models.Track
+import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TrackRepositoryImpl(private val networkClient: NetworkClient, private val sharedPreferences: SharedPreferences) :
-    TrackRepository {
+class TrackRepositoryImpl(private val networkClient: NetworkClient,
+                          private val sharedPreferences: SharedPreferences,
+                          private val gson: Gson) : TrackRepository {
 
 
     override fun searchTracks(expression: String): List<Track> {
@@ -23,43 +25,43 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient, private val 
         if (response.resultCode == 200) {
             return (response as TrackSearchResponse).results.filter { track -> track.trackId != null }.map { track ->
 
-                    val trackYear = if (!track.releaseDate.isNullOrEmpty()) {
-                        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-                        val date = dateFormat.parse(track.releaseDate)
-                        date?.let {
-                            SimpleDateFormat("YYYY", Locale.getDefault()).format(it)
-                        } ?: ""
-                    } else {
-                        "Unknown"
-                    }
-
-                    Track(
-                        track.trackId,
-                        track.trackName,
-                        track.artistName,
-                        SimpleDateFormat("m:ss", Locale.getDefault()).format(track.trackTimeMillis ?: 0L),
-                        track.artworkUrl100,
-                        track.collectionName,
-                        trackYear,
-                        track.primaryGenreName,
-                        track.country,
-                        track.previewUrl,
-                    )
+                val trackYear = if (!track.releaseDate.isNullOrEmpty()) {
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+                    val date = dateFormat.parse(track.releaseDate)
+                    date?.let {
+                        SimpleDateFormat("YYYY", Locale.getDefault()).format(it)
+                    } ?: ""
+                } else {
+                    "Unknown"
                 }
+
+                Track(
+                    track.trackId,
+                    track.trackName,
+                    track.artistName,
+                    SimpleDateFormat("m:ss", Locale.getDefault()).format(track.trackTimeMillis ?: 0L),
+                    track.artworkUrl100,
+                    track.collectionName,
+                    trackYear,
+                    track.primaryGenreName,
+                    track.country,
+                    track.previewUrl,
+                )
+            }
         } else {
             return emptyList()
         }
     }
 
     override fun saveTrackHistory(tracks: List<Track>) {
-        val json = GsonProvider.gson.toJson(tracks)
+        val json = gson.toJson(tracks)
         sharedPreferences.edit().putString(TRACK_HISTORY_KEY, json).apply()
     }
 
     override fun getTrackHistory(): List<Track> {
         val json = sharedPreferences.getString(TRACK_HISTORY_KEY, null)
         return if (!json.isNullOrEmpty()) {
-            GsonProvider.gson.fromJson(json, Array<Track>::class.java).toList()
+            gson.fromJson(json, Array<Track>::class.java).toList()
         } else {
             emptyList()
         }
@@ -70,14 +72,14 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient, private val 
     }
 
     override fun saveTrackForAudioPlayer(track: Track) {
-        val json = GsonProvider.gson.toJson(track)
+        val json = gson.toJson(track)
         sharedPreferences.edit().putString(TRACK_TO_AUDIO_PLAYER_KEY, json).apply()
     }
 
     override fun getTrackForAudioPlayer(): Track? {
         val json = sharedPreferences.getString(TRACK_TO_AUDIO_PLAYER_KEY, null)
         return if (!json.isNullOrEmpty()) {
-            GsonProvider.gson.fromJson(json, Track::class.java)
+            gson.fromJson(json, Track::class.java)
         } else {
             null
         }

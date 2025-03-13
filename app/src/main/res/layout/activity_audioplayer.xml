@@ -49,8 +49,8 @@
 
         <ImageView
             android:id="@+id/apTrackImage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="312dp"
+            android:layout_height="312dp"
             android:scaleType="centerCrop"
             android:src="@drawable/placeholder_full_size"
              />
