@@ -3,8 +3,8 @@ package com.example.playlistmaker.player.data
 import android.media.MediaPlayer
 import com.example.playlistmaker.player.domain.TrackPlayer
 
-class TrackPlayerImpl : TrackPlayer {
-    private var mediaPlayer = MediaPlayer()
+class TrackPlayerImpl(private var mediaPlayer: MediaPlayer) : TrackPlayer {
+
     private var statusObserver: TrackPlayer.StatusObserver? = null
 
     companion object {

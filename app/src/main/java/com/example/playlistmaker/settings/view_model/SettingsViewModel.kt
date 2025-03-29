@@ -1,27 +1,24 @@
 package com.example.playlistmaker.settings.view_model
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.playlistmaker.creator.Creator
+import androidx.lifecycle.ViewModel
+import com.example.playlistmaker.settings.domain.ThemePreferenceInteractor
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val themePreferencesRepository = Creator.provideThemePreferenceInteractor(application)
+class SettingsViewModel(private val themePreferencesInteractor : ThemePreferenceInteractor) : ViewModel() {
 
     private val isDarkThemeState = MutableLiveData<Boolean>()
     val isDarkTheme: LiveData<Boolean> get() = isDarkThemeState
 
     init {
-        isDarkThemeState.value = themePreferencesRepository.getCurrentTheme()
+        isDarkThemeState.value = themePreferencesInteractor.getCurrentTheme()
     }
 
     fun switchTheme(darkThemeEnabled: Boolean) {
-        if (themePreferencesRepository.getCurrentTheme() == darkThemeEnabled) {
+        if (themePreferencesInteractor.getCurrentTheme() == darkThemeEnabled) {
             return
         }
-        themePreferencesRepository.switchTheme(darkThemeEnabled)
+        themePreferencesInteractor.switchTheme(darkThemeEnabled)
         isDarkThemeState.value = darkThemeEnabled
     }
 }

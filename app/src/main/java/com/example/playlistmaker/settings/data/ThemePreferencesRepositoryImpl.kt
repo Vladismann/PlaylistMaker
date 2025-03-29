@@ -1,21 +1,13 @@
 package com.example.playlistmaker.settings.data
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.playlistmaker.search.data.DataConst.DARK_THEME_KEY
 import com.example.playlistmaker.settings.domain.ThemePreferencesRepository
 
-class ThemePreferencesRepositoryImpl(context: Context) : ThemePreferencesRepository {
-
-    companion object {
-        const val PREFS_NAME = "AppThemePrefs"
-        const val DARK_THEME_KEY = "dark"
-    }
-
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val resources: Resources = context.resources
+class ThemePreferencesRepositoryImpl(private val sharedPreferences: SharedPreferences,  private val resources: Resources) : ThemePreferencesRepository {
 
     override fun getCurrentTheme(): Boolean {
         if (!sharedPreferences.contains(DARK_THEME_KEY)) { // Для первого запуска, ориентируемся на тему пользователя, далее по настройкам

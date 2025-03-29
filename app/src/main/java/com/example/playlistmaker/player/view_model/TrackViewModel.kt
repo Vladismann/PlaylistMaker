@@ -1,15 +1,10 @@
 package com.example.playlistmaker.player.view_model
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.playlistmaker.creator.Creator
 import com.example.playlistmaker.player.domain.TrackPlayer
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.search.domain.api.TrackInteractor
@@ -29,17 +24,6 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
     init {
         if (track != null) {
             screenStateLiveData.postValue(TrackScreenState.Content(track!!))
-        }
-    }
-
-    companion object {
-        fun getViewModelFactory(context: Context): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val interactor = Creator.provideTrackInteractor(context)
-                val player = Creator.provideTrackPlayerInteractor()
-
-                TrackViewModel(interactor, player)
-            }
         }
     }
 

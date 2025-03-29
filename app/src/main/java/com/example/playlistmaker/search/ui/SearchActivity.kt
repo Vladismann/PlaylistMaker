@@ -9,7 +9,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.example.playlistmaker.R
@@ -18,6 +17,7 @@ import com.example.playlistmaker.player.ui.TrackActivity
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.view_model.SearchScreenState
 import com.example.playlistmaker.search.view_model.SearchViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding
@@ -25,9 +25,7 @@ class SearchActivity : AppCompatActivity() {
     private val clickDebounceDelay = 1000L
     private val handler = Handler(Looper.getMainLooper())
 
-    private val viewModel by viewModels<SearchViewModel> {
-        SearchViewModel.getViewModelFactory(applicationContext)
-    }
+    private val viewModel by viewModel<SearchViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
