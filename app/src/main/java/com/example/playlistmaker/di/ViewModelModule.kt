@@ -1,5 +1,7 @@
 package com.example.playlistmaker.di
 
+import com.example.playlistmaker.media.view_model.FavoritesViewModel
+import com.example.playlistmaker.media.view_model.PlaylistsViewModel
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.player.view_model.TrackViewModel
 import com.example.playlistmaker.search.domain.api.TrackInteractor
@@ -22,4 +24,7 @@ val viewModelModule = module {
     viewModel {
         SettingsViewModel(get<ThemePreferenceInteractor>())
     }
+
+    viewModel { FavoritesViewModel() }
+    viewModel { PlaylistsViewModel() }
 }
