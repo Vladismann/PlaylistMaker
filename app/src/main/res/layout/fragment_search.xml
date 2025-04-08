@@ -10,7 +10,6 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/seToolbar"
         style="@style/ToolbarPageTittle"
-        app:navigationIcon="@drawable/arrow_back"
         app:title="@string/search"
         app:titleTextAppearance="@style/ToolbarPageTittle" />
 
