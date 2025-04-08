@@ -15,7 +15,6 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/meToolbar"
             style="@style/ToolbarPageTittle"
-            app:navigationIcon="@drawable/arrow_back"
             app:title="@string/media"
             app:titleTextAppearance="@style/ToolbarPageTittle" />
 
