@@ -17,7 +17,7 @@ class RootActivity : AppCompatActivity() {
         binding = ActivityRootBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (savedInstanceState == null) { // Добавляем фрагмент в контейнер
+        if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 this.add(R.id.rootFragmentContainerView, SearchFragment())
             }
