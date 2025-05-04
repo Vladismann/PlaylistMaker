@@ -7,32 +7,45 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivitySearchBinding
+import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.player.ui.TrackActivity
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.view_model.SearchScreenState
 import com.example.playlistmaker.search.view_model.SearchViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SearchActivity : AppCompatActivity() {
-    private lateinit var binding: ActivitySearchBinding
+class SearchFragment : Fragment() {
+
+    private lateinit var binding: FragmentSearchBinding
     private var isClickAllowed = true
     private val clickDebounceDelay = 1000L
     private val handler = Handler(Looper.getMainLooper())
-
     private val viewModel by viewModel<SearchViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
 
-        setSupportActionBar(binding.seToolbar)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                requireActivity().finishAffinity()
+            }
+        })
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (requireActivity() as? AppCompatActivity)?.setSupportActionBar(binding.seToolbar)
         binding.rvTrack.adapter = TrackAdapter(emptyList())
         binding.rvTrackHistory.adapter = TrackAdapter(emptyList())
 
@@ -43,7 +56,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        viewModel.searchScreenState.observe(this) { state ->
+        viewModel.searchScreenState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is SearchScreenState.Loading -> {
                     binding.searchProgressBar.visibility = View.VISIBLE
@@ -82,10 +95,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.seToolbar.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
-
         binding.clearIcon.setOnClickListener {
             binding.inputSearch.setText("")
             (binding.rvTrack.adapter as TrackAdapter).clear()
@@ -156,13 +165,13 @@ class SearchActivity : AppCompatActivity() {
 
     private fun startTrackActivity(track: Track) {
         viewModel.saveForAudioPlayer(track)
-        val intent = Intent(this, TrackActivity::class.java)
+        val intent = Intent(requireContext(), TrackActivity::class.java)
         startActivity(intent)
     }
 
     private fun hideKeyboard() {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 
     private fun clickDebounce(): Boolean {
@@ -174,4 +183,3 @@ class SearchActivity : AppCompatActivity() {
         return current
     }
 }
-

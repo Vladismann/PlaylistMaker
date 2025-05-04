@@ -26,7 +26,9 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     }
 
     private fun searchTracks(query: String) {
-        screenState.value = SearchScreenState.Loading
+        if (query.isNotBlank()) {
+            screenState.value = SearchScreenState.Loading
+        }
 
         trackInteractor.searchTracks(query, object : TrackInteractor.TrackConsumer {
             override fun consume(actualResult: TrackSearchResult) {
