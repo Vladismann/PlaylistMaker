@@ -5,9 +5,13 @@ import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.api.TrackInteractor
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TrackSearchResult
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel() {
 
@@ -42,8 +46,7 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
                             if (it is SearchScreenState.Content) it.historyTracks else emptyList()
                         } ?: emptyList()
 
-                        screenState.value = SearchScreenState.Content(
-                            tracks = actualResult.tracks,
+                        screenState.value = SearchScreenState.Content(tracks = actualResult.tracks,
                             historyTracks = currentHistory,
                             query = query)
                     }
@@ -52,9 +55,21 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
         })
     }
 
+    private var searchJob: Job? = null
+    private var latestSearchText: String? = null
+
     fun searchDebounce(query: String) {
-        handler.removeCallbacksAndMessages(null)
-        handler.postDelayed({ searchTracks(query) }, SEARCH_DEBOUNCE_DELAY)
+        if (latestSearchText == query) {
+            return
+        }
+
+        latestSearchText = query
+
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_DELAY)
+            searchTracks(query)
+        }
     }
 
     fun saveTrackToHistory(track: Track) {
