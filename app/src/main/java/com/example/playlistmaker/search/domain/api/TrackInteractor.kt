@@ -4,7 +4,7 @@ import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TrackSearchResult
 
 interface TrackInteractor {
-    fun searchTracks(expression: String, consumer: TrackConsumer)
+    suspend fun searchTracks(expression: String) : TrackSearchResult
 
     fun getTracksHistory(): List<Track>
 
@@ -15,8 +15,4 @@ interface TrackInteractor {
     fun writeTrackForAudioPlayer(track: Track)
 
     fun readTrackForAudioPlayer(): Track?
-
-     interface TrackConsumer {
-        fun consume(actualResult: TrackSearchResult)
-    }
 }
