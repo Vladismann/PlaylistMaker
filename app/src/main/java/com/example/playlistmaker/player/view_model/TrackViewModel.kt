@@ -1,14 +1,17 @@
 package com.example.playlistmaker.player.view_model
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.player.domain.TrackPlayer
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.search.domain.api.TrackInteractor
 import com.example.playlistmaker.search.domain.models.Track
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -16,7 +19,7 @@ import java.util.Locale
 class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer: TrackPlayerInteractor) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
-    private val handler = Handler(Looper.getMainLooper())
+    private var updateTimeJob: Job? = null
 
     private var isPaused = false
     private var track: Track? = tracksInteractor.readTrackForAudioPlayer()
@@ -36,20 +39,20 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
         trackPlayer.setStatusObserver(object : TrackPlayer.StatusObserver {
             override fun onStop() {
                 updatePlayerState { it.copy(isPlaying = false, progress = 0, currentTime = "0:00") }
-                handler.removeCallbacks(updateTimeRunnable)
+                updateTimeJob?.cancel()
                 isPaused = false
             }
 
             override fun onPlay() {
                 trackPlayer.startPlayer()
                 updatePlayerState { it.copy(isPlaying = true) }
-                handler.post(updateTimeRunnable)
+                startUpdateTimeJob()
                 isPaused = false
             }
 
             override fun onResume() {
                 updatePlayerState { it.copy(isPlaying = true) }
-                handler.post(updateTimeRunnable)
+                startUpdateTimeJob()
                 isPaused = false
             }
         })
@@ -58,7 +61,7 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
 
     fun pause() {
         trackPlayer.pausePlayer()
-        handler.removeCallbacks(updateTimeRunnable)
+        updateTimeJob?.cancel()
         updatePlayerState { it.copy(isPlaying = false, progress = trackPlayer.getCurrentPosition()) }
         isPaused = true
     }
@@ -67,7 +70,7 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
         if (isPaused) {
             isPaused = false
             trackPlayer.resumePlayer()
-            handler.post(updateTimeRunnable)
+            startUpdateTimeJob()
             updatePlayerState { it.copy(isPlaying = true, progress = trackPlayer.getCurrentPosition()) }
         }
     }
@@ -79,21 +82,21 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
         }
     }
 
-    private val updateTimeRunnable = object : Runnable {
-        override fun run() {
-            val currentPosition = trackPlayer.getCurrentPosition()
-            val timeString = SimpleDateFormat("m:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
-            updatePlayerState { it.copy(currentTime = timeString) }
+    private fun startUpdateTimeJob() {
+        updateTimeJob?.cancel()
+        updateTimeJob = viewModelScope.launch(Dispatchers.Main) {
+            while (true) {
+                val currentPosition = trackPlayer.getCurrentPosition()
+                val timeString = SimpleDateFormat("m:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
+                updatePlayerState { it.copy(currentTime = timeString) }
 
-            val currentState = screenStateLiveData.value
-            if (currentState is TrackScreenState.Content && currentState.playerState.isPlaying) {
-                handler.postDelayed(this, 500)
+                delay(500)
             }
         }
     }
 
     override fun onCleared() {
-        handler.removeCallbacks(updateTimeRunnable)
+        updateTimeJob?.cancel()
         trackPlayer.releasePlayer()
     }
 }
