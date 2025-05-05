@@ -30,24 +30,25 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
                 screenState.value = SearchScreenState.Loading
             }
 
-            val actualResult = trackInteractor.searchTracks(query)
+            trackInteractor.searchTracks(query)
+                .collect { actualResult ->
+                    if (query.isBlank()) {
+                        loadSearchHistory()
+                    } else if (actualResult.isError) {
+                        screenState.value = SearchScreenState.Error(showRefresh = true)
+                    } else {
+                        val currentHistory = when (val state = screenState.value) {
+                            is SearchScreenState.Content -> state.historyTracks
+                            else -> emptyList()
+                        }
 
-            if (query.isBlank()) {
-                loadSearchHistory()
-            } else if (actualResult.isError) {
-                screenState.value = SearchScreenState.Error(showRefresh = true)
-            } else {
-                val currentHistory = when (val state = screenState.value) {
-                    is SearchScreenState.Content -> state.historyTracks
-                    else -> emptyList()
+                        screenState.value = SearchScreenState.Content(
+                            tracks = actualResult.tracks,
+                            historyTracks = currentHistory,
+                            query = query
+                        )
+                    }
                 }
-
-                screenState.value = SearchScreenState.Content(
-                    tracks = actualResult.tracks,
-                    historyTracks = currentHistory,
-                    query = query
-                )
-            }
         }
     }
 
