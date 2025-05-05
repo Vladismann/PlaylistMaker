@@ -28,14 +28,7 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
         if (track != null) {
             screenStateLiveData.postValue(TrackScreenState.Content(track!!))
         }
-    }
 
-    fun getScreenStateLiveData(): LiveData<TrackScreenState> = screenStateLiveData
-
-    fun play() {
-        if (!isPaused) {
-            trackPlayer.preparePlayer(track?.previewUrl)
-        }
         trackPlayer.setStatusObserver(object : TrackPlayer.StatusObserver {
             override fun onStop() {
                 updatePlayerState { it.copy(isPlaying = false, progress = 0, currentTime = "0:00") }
@@ -56,6 +49,12 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
                 isPaused = false
             }
         })
+    }
+
+    fun getScreenStateLiveData(): LiveData<TrackScreenState> = screenStateLiveData
+
+    fun play() {
+        trackPlayer.preparePlayer(track?.previewUrl)
         trackPlayer.startPlayer()
     }
 
@@ -90,7 +89,7 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
                 val timeString = SimpleDateFormat("m:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
                 updatePlayerState { it.copy(currentTime = timeString) }
 
-                delay(500)
+                delay(300)
             }
         }
     }
