@@ -2,9 +2,10 @@ package com.example.playlistmaker.search.domain.api
 
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.domain.models.TrackSearchResult
+import kotlinx.coroutines.flow.Flow
 
 interface TrackInteractor {
-    fun searchTracks(expression: String, consumer: TrackConsumer)
+    fun searchTracks(expression: String) : Flow<TrackSearchResult>
 
     fun getTracksHistory(): List<Track>
 
@@ -15,8 +16,4 @@ interface TrackInteractor {
     fun writeTrackForAudioPlayer(track: Track)
 
     fun readTrackForAudioPlayer(): Track?
-
-     interface TrackConsumer {
-        fun consume(actualResult: TrackSearchResult)
-    }
 }

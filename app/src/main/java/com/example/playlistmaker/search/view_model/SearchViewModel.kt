@@ -1,13 +1,14 @@
 package com.example.playlistmaker.search.view_model
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.api.TrackInteractor
 import com.example.playlistmaker.search.domain.models.Track
-import com.example.playlistmaker.search.domain.models.TrackSearchResult
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel() {
 
@@ -19,42 +20,46 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     private val screenState = MutableLiveData<SearchScreenState>(SearchScreenState.Loading)
     val searchScreenState: LiveData<SearchScreenState> = screenState
 
-    private val handler = Handler(Looper.getMainLooper())
-
     init {
         loadSearchHistory()
     }
 
     private fun searchTracks(query: String) {
-        if (query.isNotBlank()) {
-            screenState.value = SearchScreenState.Loading
-        }
+        viewModelScope.launch {
+            if (query.isNotBlank()) {
+                screenState.value = SearchScreenState.Loading
+            }
 
-        trackInteractor.searchTracks(query, object : TrackInteractor.TrackConsumer {
-            override fun consume(actualResult: TrackSearchResult) {
-                handler.post {
+            trackInteractor.searchTracks(query)
+                .collect { actualResult ->
                     if (query.isBlank()) {
                         loadSearchHistory()
                     } else if (actualResult.isError) {
                         screenState.value = SearchScreenState.Error(showRefresh = true)
                     } else {
-                        val currentHistory = screenState.value?.let {
-                            if (it is SearchScreenState.Content) it.historyTracks else emptyList()
-                        } ?: emptyList()
+                        val currentHistory = when (val state = screenState.value) {
+                            is SearchScreenState.Content -> state.historyTracks
+                            else -> emptyList()
+                        }
 
                         screenState.value = SearchScreenState.Content(
                             tracks = actualResult.tracks,
                             historyTracks = currentHistory,
-                            query = query)
+                            query = query
+                        )
                     }
                 }
-            }
-        })
+        }
     }
 
+    private var searchJob: Job? = null
+
     fun searchDebounce(query: String) {
-        handler.removeCallbacksAndMessages(null)
-        handler.postDelayed({ searchTracks(query) }, SEARCH_DEBOUNCE_DELAY)
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_DELAY)
+            searchTracks(query)
+        }
     }
 
     fun saveTrackToHistory(track: Track) {
@@ -79,7 +84,7 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
         screenState.value = (screenState.value as? SearchScreenState.Content)?.copy(historyTracks = emptyList())
     }
 
-    fun loadSearchHistory() {
+    private fun loadSearchHistory() {
         val history = trackInteractor.getTracksHistory()
         screenState.value = SearchScreenState.Content(tracks = emptyList(), historyTracks = history, query = "")
     }

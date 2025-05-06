@@ -8,6 +8,8 @@ import com.example.playlistmaker.search.data.network.TrackSearchResponse
 import com.example.playlistmaker.search.domain.api.TrackRepository
 import com.example.playlistmaker.search.domain.models.Track
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -16,14 +18,14 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,
                           private val gson: Gson) : TrackRepository {
 
 
-    override fun searchTracks(expression: String): List<Track> {
+    override fun searchTracks(expression: String): Flow<List<Track>> = flow {
         val response = networkClient.doRequest(TrackSearchRequest(expression))
 
         if (response.resultCode == 400 || response.resultCode == 0 || response.resultCode == 503) {
             throw Exception()
         } //у аудиокниг нет trackId, фильтруем только треки без аудиокниг
-        if (response.resultCode == 200) {
-            return (response as TrackSearchResponse).results.filter { track -> track.trackId != null }.map { track ->
+        val tracks = if (response.resultCode == 200) {
+            (response as TrackSearchResponse).results.filter { track -> track.trackId != null }.map { track ->
 
                 val trackYear = if (!track.releaseDate.isNullOrEmpty()) {
                     val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
@@ -49,8 +51,9 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,
                 )
             }
         } else {
-            return emptyList()
+            emptyList()
         }
+        emit(tracks)
     }
 
     override fun saveTrackHistory(tracks: List<Track>) {
