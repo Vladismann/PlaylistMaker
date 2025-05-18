@@ -26,6 +26,6 @@ val viewModelModule = module {
         SettingsViewModel(get<ThemePreferenceInteractor>())
     }
 
-    viewModel { FavoritesViewModel() }
+    viewModel { FavoritesViewModel(get<FavoriteTrackInteractor>(), get<TrackInteractor>()) }
     viewModel { PlaylistsViewModel() }
 }
