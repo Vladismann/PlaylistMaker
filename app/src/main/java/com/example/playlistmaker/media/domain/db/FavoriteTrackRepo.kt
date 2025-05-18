@@ -10,4 +10,6 @@ interface FavoriteTrackRepo {
     suspend fun addTrackToFavorite(track: Track)
 
     suspend fun deleteTrackFromFavorite(track: Track)
+
+    suspend fun isTrackInFavorites(trackId: Long): Boolean
 }

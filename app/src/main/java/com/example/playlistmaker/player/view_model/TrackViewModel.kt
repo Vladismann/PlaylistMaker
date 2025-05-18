@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.media.domain.db.FavoriteTrackInteractor
 import com.example.playlistmaker.player.domain.TrackPlayer
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.search.domain.api.TrackInteractor
@@ -16,17 +17,24 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer: TrackPlayerInteractor) : ViewModel() {
+class TrackViewModel(tracksInteractor: TrackInteractor,
+                     private val trackPlayer: TrackPlayerInteractor,
+                     private val favoriteTrackInteractor: FavoriteTrackInteractor) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
     private var updateTimeJob: Job? = null
 
     private var isPaused = false
-    private var track: Track? = tracksInteractor.readTrackForAudioPlayer()
+    private val track: Track? = tracksInteractor.readTrackForAudioPlayer()
 
     init {
-        if (track != null) {
-            screenStateLiveData.postValue(TrackScreenState.Content(track!!))
+        val currentTrack = track
+
+        viewModelScope.launch {
+            if (currentTrack != null) {
+                currentTrack.isFavorite = favoriteTrackInteractor.isTrackInFavorites(currentTrack.trackId!!)
+                screenStateLiveData.postValue(TrackScreenState.Content(track!!))
+            }
         }
 
         trackPlayer.setStatusObserver(object : TrackPlayer.StatusObserver {
@@ -97,5 +105,20 @@ class TrackViewModel(tracksInteractor: TrackInteractor, private val trackPlayer:
     override fun onCleared() {
         updateTimeJob?.cancel()
         trackPlayer.releasePlayer()
+    }
+
+    suspend fun onFavoriteClicked() {
+        val currentState = screenStateLiveData.value
+        if (currentState is TrackScreenState.Content) {
+            val currentTrack = currentState.track
+            val updatedTrack = if (currentTrack.isFavorite) {
+                favoriteTrackInteractor.deleteTrackFromFavorites(currentTrack)
+                currentTrack.copy(isFavorite = false)
+            } else {
+                favoriteTrackInteractor.addTrackToFavorites(currentTrack)
+                currentTrack.copy(isFavorite = true)
+            }
+            screenStateLiveData.postValue(currentState.updateTrack(updatedTrack))
+        }
     }
 }

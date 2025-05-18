@@ -4,19 +4,23 @@ import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.Flow
 
 class FavoriteTrackInteractorImpl (
-    private val historyRepository: FavoriteTrackRepo
+    private val favoriteRepo: FavoriteTrackRepo
 ) : FavoriteTrackInteractor {
 
     override fun favoriteTracks(): Flow<List<Track>> {
-        return historyRepository.favoriteTracks()
+        return favoriteRepo.favoriteTracks()
     }
 
     override suspend fun addTrackToFavorites(track: Track) {
-        historyRepository.addTrackToFavorite(track)
+        favoriteRepo.addTrackToFavorite(track)
     }
 
     override suspend fun deleteTrackFromFavorites(track: Track) {
-        historyRepository.deleteTrackFromFavorite(track)
+        favoriteRepo.deleteTrackFromFavorite(track)
+    }
+
+    override suspend fun isTrackInFavorites(trackId: Long): Boolean {
+        return favoriteRepo.isTrackInFavorites(trackId)
     }
 
 }

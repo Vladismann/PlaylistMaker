@@ -38,7 +38,7 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,
                 } else {
                     "Unknown"
                 }
-                val isFavorite = checkIsFavorite(track.trackId)
+
                 Track(track.trackId,
                     track.trackName,
                     track.artistName,
@@ -49,7 +49,7 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,
                     track.primaryGenreName,
                     track.country,
                     track.previewUrl,
-                    isFavorite)
+                    )
             }
         } else {
             emptyList()
