@@ -15,4 +15,6 @@ interface TrackRepository {
     fun saveTrackForAudioPlayer(track: Track)
 
     fun getTrackForAudioPlayer(): Track?
+
+    suspend fun checkIsFavorite(trackId: Long?): Boolean
 }

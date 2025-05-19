@@ -7,5 +7,8 @@ sealed class TrackScreenState {
     data class Content(
         val track: Track,
         val playerState: PlayerState = PlayerState()
-    ) : TrackScreenState()
+    ) : TrackScreenState() {
+        fun updateTrack(newTrack: Track) = copy(track = newTrack)
+    }
+
 }

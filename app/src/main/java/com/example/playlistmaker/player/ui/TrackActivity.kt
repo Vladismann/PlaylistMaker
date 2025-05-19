@@ -58,6 +58,14 @@ class TrackActivity : AppCompatActivity() {
                 }
             }
         }
+
+        binding.apAddToFavoritesButton.setOnClickListener {
+            if (clickDebounce()) {
+                lifecycleScope.launch {
+                    viewModel.onFavoriteClicked()
+                }
+            }
+        }
     }
 
     private fun loadTrackInfo(screenState: TrackScreenState.Content) {
@@ -71,6 +79,11 @@ class TrackActivity : AppCompatActivity() {
         binding.apActualYear.text = screenState.track.releaseDate
         binding.apActualGenre.text = screenState.track.primaryGenreName
         binding.apActualCountry.text = screenState.track.country
+        if (screenState.track.isFavorite) {
+            binding.apAddToFavoritesButton.setImageResource(R.drawable.in_favorites_button)
+        } else {
+            binding.apAddToFavoritesButton.setImageResource(R.drawable.add_to_favorites_button)
+        }
     }
 
     private fun updatePlayerUI(playerState: PlayerState) {

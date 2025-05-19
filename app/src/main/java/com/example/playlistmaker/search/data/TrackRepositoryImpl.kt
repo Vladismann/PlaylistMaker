@@ -1,6 +1,7 @@
 package com.example.playlistmaker.search.data
 
 import android.content.SharedPreferences
+import com.example.playlistmaker.media.data.db.AppDatabase
 import com.example.playlistmaker.search.data.DataConst.TRACK_HISTORY_KEY
 import com.example.playlistmaker.search.data.DataConst.TRACK_TO_AUDIO_PLAYER_KEY
 import com.example.playlistmaker.search.data.network.TrackSearchRequest
@@ -15,7 +16,8 @@ import java.util.Locale
 
 class TrackRepositoryImpl(private val networkClient: NetworkClient,
                           private val sharedPreferences: SharedPreferences,
-                          private val gson: Gson) : TrackRepository {
+                          private val gson: Gson,
+                          private val appDatabase: AppDatabase) : TrackRepository {
 
 
     override fun searchTracks(expression: String): Flow<List<Track>> = flow {
@@ -37,18 +39,17 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,
                     "Unknown"
                 }
 
-                Track(
-                    track.trackId,
+                Track(track.trackId,
                     track.trackName,
                     track.artistName,
-                    SimpleDateFormat("m:ss", Locale.getDefault()).format(track.trackTimeMillis ?: 0L),
+                    SimpleDateFormat("mm:ss", Locale.getDefault()).format(track.trackTimeMillis ?: 0L),
                     track.artworkUrl100,
                     track.collectionName,
                     trackYear,
                     track.primaryGenreName,
                     track.country,
                     track.previewUrl,
-                )
+                    )
             }
         } else {
             emptyList()
@@ -86,6 +87,10 @@ class TrackRepositoryImpl(private val networkClient: NetworkClient,
         } else {
             null
         }
+    }
+
+    override suspend fun checkIsFavorite(trackId: Long?): Boolean {
+        return appDatabase.favoriteTrackDao().getTracksIds().contains(trackId)
     }
 
 }

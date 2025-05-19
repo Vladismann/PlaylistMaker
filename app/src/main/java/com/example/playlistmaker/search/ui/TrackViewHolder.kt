@@ -22,7 +22,7 @@ class TrackViewHolder(itemView: View) :
         var actualTrackTime = item.trackTime
 
         if (actualTrackTime.isNullOrBlank()) {
-            actualTrackTime = "0:00"
+            actualTrackTime = "00:00"
         }
         if (actualName.isNullOrBlank()) {
             actualName = itemView.context.getString(R.string.text_null)

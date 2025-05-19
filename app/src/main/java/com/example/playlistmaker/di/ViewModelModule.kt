@@ -1,5 +1,6 @@
 package com.example.playlistmaker.di
 
+import com.example.playlistmaker.media.domain.db.FavoriteTrackInteractor
 import com.example.playlistmaker.media.view_model.FavoritesViewModel
 import com.example.playlistmaker.media.view_model.PlaylistsViewModel
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
@@ -18,13 +19,13 @@ val viewModelModule = module {
     }
 
     viewModel {
-        TrackViewModel(get<TrackInteractor>(), get<TrackPlayerInteractor>())
+        TrackViewModel(get<TrackInteractor>(), get<TrackPlayerInteractor>(), get<FavoriteTrackInteractor>())
     }
 
     viewModel {
         SettingsViewModel(get<ThemePreferenceInteractor>())
     }
 
-    viewModel { FavoritesViewModel() }
+    viewModel { FavoritesViewModel(get<FavoriteTrackInteractor>(), get<TrackInteractor>()) }
     viewModel { PlaylistsViewModel() }
 }
