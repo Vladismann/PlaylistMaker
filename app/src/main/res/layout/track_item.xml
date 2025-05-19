@@ -46,7 +46,7 @@
             android:maxLines="1"/>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
@@ -57,6 +57,7 @@
                 style="@style/TrackText"
                 tools:text="@string/text_null"
                 android:ellipsize="end"
+                android:maxWidth="200dp"
                 android:maxLines="1"/>
 
             <ImageView

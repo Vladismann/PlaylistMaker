@@ -30,8 +30,7 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
                 screenState.value = SearchScreenState.Loading
             }
 
-            trackInteractor.searchTracks(query)
-                .collect { actualResult ->
+            trackInteractor.searchTracks(query).collect { actualResult ->
                     if (query.isBlank()) {
                         loadSearchHistory()
                     } else if (actualResult.isError) {
@@ -42,24 +41,27 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
                             else -> emptyList()
                         }
 
-                        screenState.value = SearchScreenState.Content(
-                            tracks = actualResult.tracks,
+                        screenState.value = SearchScreenState.Content(tracks = actualResult.tracks,
                             historyTracks = currentHistory,
-                            query = query
-                        )
+                            query = query)
                     }
                 }
         }
     }
 
     private var searchJob: Job? = null
+    private var lastQuery = ""
 
     fun searchDebounce(query: String) {
+        if (query == lastQuery && screenState.value !is SearchScreenState.Error && screenState.value != null) {
+            return
+        }
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE_DELAY)
             searchTracks(query)
         }
+        lastQuery = query
     }
 
     fun saveTrackToHistory(track: Track) {

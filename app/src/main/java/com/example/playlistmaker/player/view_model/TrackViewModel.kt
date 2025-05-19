@@ -39,7 +39,7 @@ class TrackViewModel(tracksInteractor: TrackInteractor,
 
         trackPlayer.setStatusObserver(object : TrackPlayer.StatusObserver {
             override fun onStop() {
-                updatePlayerState { it.copy(isPlaying = false, progress = 0, currentTime = "0:00") }
+                updatePlayerState { it.copy(isPlaying = false, progress = 0, currentTime = "00:00") }
                 updateTimeJob?.cancel()
                 isPaused = false
             }
@@ -94,7 +94,7 @@ class TrackViewModel(tracksInteractor: TrackInteractor,
         updateTimeJob = viewModelScope.launch(Dispatchers.Main) {
             while (true) {
                 val currentPosition = trackPlayer.getCurrentPosition()
-                val timeString = SimpleDateFormat("m:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
+                val timeString = SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
                 updatePlayerState { it.copy(currentTime = timeString) }
 
                 delay(300)
