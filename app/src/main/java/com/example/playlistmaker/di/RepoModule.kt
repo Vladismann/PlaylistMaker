@@ -5,10 +5,13 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import android.media.MediaPlayer
 import androidx.room.Room
+import com.example.playlistmaker.media.data.converters.PlaylistDbConverter
 import com.example.playlistmaker.media.data.converters.TrackDbConverter
 import com.example.playlistmaker.media.data.db.AppDatabase
 import com.example.playlistmaker.media.domain.db.FavoriteTrackRepo
 import com.example.playlistmaker.media.domain.db.FavoriteTrackRepoImpl
+import com.example.playlistmaker.media.domain.db.PlaylistRepo
+import com.example.playlistmaker.media.domain.db.PlaylistRepoImpl
 import com.example.playlistmaker.player.data.TrackPlayerImpl
 import com.example.playlistmaker.player.domain.TrackPlayer
 import com.example.playlistmaker.search.data.DataConst.SEARCH_PREFS
@@ -65,5 +68,9 @@ val trackRepoModule = module {
 
     single<FavoriteTrackRepo> {
         FavoriteTrackRepoImpl(get<AppDatabase>(), get<TrackDbConverter>())
+    }
+
+    single<PlaylistRepo> {
+        PlaylistRepoImpl(get<AppDatabase>(), get<PlaylistDbConverter>())
     }
 }
