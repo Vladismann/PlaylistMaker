@@ -13,7 +13,7 @@
         android:visibility="visible">
 
         <Button
-            android:id="@+id/refreshTracks"
+            android:id="@+id/createPlaylist"
             style="@style/SearchButtons"
             android:text="@string/create_playlist"
             android:visibility="visible"
