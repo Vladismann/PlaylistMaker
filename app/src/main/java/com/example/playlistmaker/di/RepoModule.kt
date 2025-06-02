@@ -38,10 +38,9 @@ val trackRepoModule = module {
     factory<Gson> { Gson() }
 
     factory<TrackRepository> {
-        TrackRepositoryImpl(get<NetworkClient>(),
-            get<SharedPreferences>(named(SEARCH_PREFS)),
-            get<Gson>(),
-            get<AppDatabase>())
+        TrackRepositoryImpl(
+            get<NetworkClient>(), get<SharedPreferences>(named(SEARCH_PREFS)), get<Gson>(), get<AppDatabase>()
+        )
     }
 
     factory<MediaPlayer> {
@@ -61,7 +60,8 @@ val trackRepoModule = module {
     }
 
     single {
-        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db").build()
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db").fallbackToDestructiveMigration()
+            .build()
     }
 
     factory { TrackDbConverter() }
@@ -69,6 +69,8 @@ val trackRepoModule = module {
     single<FavoriteTrackRepo> {
         FavoriteTrackRepoImpl(get<AppDatabase>(), get<TrackDbConverter>())
     }
+
+    factory { PlaylistDbConverter() }
 
     single<PlaylistRepo> {
         PlaylistRepoImpl(get<AppDatabase>(), get<PlaylistDbConverter>())

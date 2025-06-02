@@ -21,7 +21,8 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         fun build(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, "app-database")
-                .fallbackToDestructiveMigration().build()
+                .fallbackToDestructiveMigration() // Удаляет и пересоздает БД при любой миграции
+                .build()
         }
     }
 }

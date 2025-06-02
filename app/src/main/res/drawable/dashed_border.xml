@@ -7,5 +7,6 @@
         android:color="@color/YP_Text_Grey"
         android:dashWidth="20dp"
         android:dashGap="30dp" />
+    <corners android:radius="8dp" />
     <solid android:color="@android:color/transparent" />
 </shape>
