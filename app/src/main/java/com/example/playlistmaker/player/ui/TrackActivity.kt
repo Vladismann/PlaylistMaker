@@ -1,6 +1,8 @@
 package com.example.playlistmaker.player.ui
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -10,8 +12,11 @@ import com.example.playlistmaker.databinding.ActivityAudioplayerBinding
 import com.example.playlistmaker.player.view_model.PlayerState
 import com.example.playlistmaker.player.view_model.TrackScreenState
 import com.example.playlistmaker.player.view_model.TrackViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class TrackActivity : AppCompatActivity() {
@@ -26,6 +31,7 @@ class TrackActivity : AppCompatActivity() {
         binding = ActivityAudioplayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.rvPlaylist.adapter = PlaylistSmallAdapter(emptyList())
         binding.apToolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
@@ -66,6 +72,68 @@ class TrackActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.playlistsBottomSheet).apply {
+            state = BottomSheetBehavior.STATE_HIDDEN
+            isHideable = true
+            skipCollapsed = true
+            isFitToContents = true
+            addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    when (newState) {
+                        BottomSheetBehavior.STATE_HIDDEN -> {
+                            binding.overlay.visibility = View.GONE
+                        }
+
+                        BottomSheetBehavior.STATE_EXPANDED -> {
+                            binding.overlay.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    binding.overlay.apply {
+                        visibility = View.VISIBLE
+                        alpha = slideOffset
+                    }
+                }
+            })
+        }
+
+        binding.apAddToPlaylistButton.setOnClickListener {
+            lifecycleScope.launch {
+                (binding.rvPlaylist.adapter as PlaylistSmallAdapter).updateData(viewModel.getPlaylists())
+            }
+            binding.playlistsBottomSheet.visibility = View.VISIBLE
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding.overlay.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+
+        (binding.rvPlaylist.adapter as PlaylistSmallAdapter).setOnItemClickListener { playlist ->
+            var success = false
+            if (clickDebounce()) {
+                lifecycleScope.launch {
+                    success = viewModel.addTrackToPlaylist(playlist.playlistId!!.toLong())
+                    withContext(Dispatchers.Main) {
+                        if (success) {
+                            Toast.makeText(this@TrackActivity, "Добавлено в плейлист ${playlist.playlistName}", Toast.LENGTH_SHORT)
+                                .show()
+                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                            binding.overlay.visibility = View.GONE
+                        } else {
+                            Toast.makeText(
+                                this@TrackActivity, "Трек уже добавлен в плейлист ${playlist.playlistName}", Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
+
+
     }
 
     private fun loadTrackInfo(screenState: TrackScreenState.Content) {

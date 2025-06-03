@@ -4,6 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "playlist_track_table")
-class PlaylistTrackEntity(@PrimaryKey val id: Long?,
+data class PlaylistTrackEntity(@PrimaryKey(autoGenerate = true) val id: Long?,
                           val playlistId: Long?,
                           val trackId: Long?)

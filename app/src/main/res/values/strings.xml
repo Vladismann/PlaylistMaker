@@ -35,6 +35,7 @@
     <string name="playlist_descr">Описание</string>
     <string name="create">Создать</string>
     <string name="countTracks">0 треков</string>
+    <string name="addToPlaylist">Добавить в плейлист</string>
 
     <plurals name="track_count">
         <item quantity="one">%d трек</item>

@@ -21,7 +21,7 @@ val viewModelModule = module {
     }
 
     viewModel {
-        TrackViewModel(get<TrackInteractor>(), get<TrackPlayerInteractor>(), get<FavoriteTrackInteractor>())
+        TrackViewModel(get<TrackInteractor>(), get<TrackPlayerInteractor>(), get<FavoriteTrackInteractor>(), get<PlaylistInteractor>())
     }
 
     viewModel {

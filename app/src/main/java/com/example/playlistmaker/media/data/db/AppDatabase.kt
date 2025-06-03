@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    version = 3,
+    version = 4,
     entities = [TrackEntity::class, PlaylistEntity::class, PlaylistTrackEntity::class],
     exportSchema = false
 )
