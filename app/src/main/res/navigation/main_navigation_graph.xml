@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/createPlaylistFragment"
-        android:name="com.example.playlistmaker.media.ui.FragmentCreatePlaylist"
+        android:name="com.example.playlistmaker.media.ui.CreatePlaylistFragment"
         android:label="CreatePlaylistFragment">
 
         <action

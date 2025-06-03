@@ -19,10 +19,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class FragmentFavorites : Fragment() {
+class FavoritesFragment : Fragment() {
     companion object {
-        fun newInstance(): FragmentFavorites {
-            return FragmentFavorites()
+        fun newInstance(): FavoritesFragment {
+            return FavoritesFragment()
         }
     }
 
