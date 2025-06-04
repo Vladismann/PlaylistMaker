@@ -118,4 +118,11 @@
         <item name="itemTextAppearanceInactive">@style/BottomNavTextStyle</item>
     </style>
 
+    <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:background">@color/defaultBackground</item>
+        <item name="android:textColorPrimary">@color/defaultTextColor</item>
+        <item name="android:textColorSecondary">@color/defaultTextColor</item>
+        <item name="colorPrimary">@color/YP_Blue</item>
+    </style>
+
 </resources>

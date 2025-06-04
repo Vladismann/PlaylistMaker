@@ -30,4 +30,16 @@
     <string name="create_playlist">Новый плейлист</string>
     <string name="favorites">Избранные треки</string>
     <string name="playlists">Плейлисты</string>
+    <string name="new_playlists">Новый плейлист</string>
+    <string name="playlist_name">Название*</string>
+    <string name="playlist_descr">Описание</string>
+    <string name="create">Создать</string>
+    <string name="countTracks">0 треков</string>
+    <string name="addToPlaylist">Добавить в плейлист</string>
+
+    <plurals name="track_count">
+        <item quantity="one">%d трек</item>
+        <item quantity="few">%d трека</item>
+        <item quantity="many">%d треков</item>
+    </plurals>
 </resources>

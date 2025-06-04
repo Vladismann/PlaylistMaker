@@ -1,6 +1,5 @@
 package com.example.playlistmaker.media.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,20 +8,21 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentFavoritesBinding
 import com.example.playlistmaker.media.view_model.FavoritesScreenState
 import com.example.playlistmaker.media.view_model.FavoritesViewModel
-import com.example.playlistmaker.player.ui.TrackActivity
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.TrackAdapter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class FragmentFavorites : Fragment() {
+class FavoritesFragment : Fragment() {
     companion object {
-        fun newInstance(): FragmentFavorites {
-            return FragmentFavorites()
+        fun newInstance(): FavoritesFragment {
+            return FavoritesFragment()
         }
     }
 
@@ -38,7 +38,7 @@ class FragmentFavorites : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.rvTrack.adapter = TrackAdapter(emptyList())
+        binding.fRvTrack.adapter = TrackAdapter(emptyList())
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -46,18 +46,19 @@ class FragmentFavorites : Fragment() {
                     when (state) {
                         is FavoritesScreenState.Loading -> {
                             binding.searchProgressBar.visibility = View.VISIBLE
-                            binding.errorMessageElement.visibility = View.GONE
-                            binding.rvTrack.visibility = View.GONE
+                            binding.fErrorMessageElement.visibility = View.GONE
+                            binding.fRvTrack.visibility = View.GONE
                         }
+
                         is FavoritesScreenState.Content -> {
                             binding.searchProgressBar.visibility = View.GONE
                             if (state.tracks.isEmpty()) {
-                                binding.errorMessageElement.visibility = View.VISIBLE
-                                binding.rvTrack.visibility = View.GONE
+                                binding.fErrorMessageElement.visibility = View.VISIBLE
+                                binding.fRvTrack.visibility = View.GONE
                             } else {
-                                (binding.rvTrack.adapter as TrackAdapter).updateData(state.tracks)
-                                binding.rvTrack.visibility = View.VISIBLE
-                                binding.errorMessageElement.visibility = View.GONE
+                                (binding.fRvTrack.adapter as TrackAdapter).updateData(state.tracks)
+                                binding.fRvTrack.visibility = View.VISIBLE
+                                binding.fErrorMessageElement.visibility = View.GONE
                             }
                         }
                     }
@@ -65,19 +66,22 @@ class FragmentFavorites : Fragment() {
             }
         }
 
-        (binding.rvTrack.adapter as TrackAdapter).setOnItemClickListener { track ->
+        (binding.fRvTrack.adapter as TrackAdapter).setOnItemClickListener { track ->
             if (clickDebounce()) {
                 binding.searchProgressBar.visibility = View.VISIBLE
-                startTrackActivity(track)
+                startTrackFragment(track)
             }
         }
 
     }
 
-    private fun startTrackActivity(track: Track) {
+    private fun startTrackFragment(track: Track) {
         viewModel.saveForAudioPlayer(track)
-        val intent = Intent(requireContext(), TrackActivity::class.java)
-        startActivity(intent)
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(1000)
+            val navController = findNavController()
+            navController.navigate(R.id.action_global_to_trackFragment)
+        }
     }
 
     private fun clickDebounce(): Boolean {

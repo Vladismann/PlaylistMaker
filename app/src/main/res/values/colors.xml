@@ -23,4 +23,6 @@
 
     <color name="mainPageBackground">@color/YP_Blue</color>
     <color name="defaultBackground">@color/YP_White</color>
+
+    <color name="hintTextColor">@color/YP_Blue</color>
 </resources>

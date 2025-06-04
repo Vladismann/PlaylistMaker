@@ -5,6 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.db.FavoriteTrackInteractor
+import com.example.playlistmaker.media.domain.db.PlaylistInteractor
+import com.example.playlistmaker.media.domain.models.Playlist
+import com.example.playlistmaker.media.domain.models.PlaylistTrack
 import com.example.playlistmaker.player.domain.TrackPlayer
 import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.search.domain.api.TrackInteractor
@@ -12,6 +15,7 @@ import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,7 +23,8 @@ import java.util.Locale
 
 class TrackViewModel(tracksInteractor: TrackInteractor,
                      private val trackPlayer: TrackPlayerInteractor,
-                     private val favoriteTrackInteractor: FavoriteTrackInteractor) : ViewModel() {
+                     private val favoriteTrackInteractor: FavoriteTrackInteractor,
+                     private val playlistInteractor: PlaylistInteractor) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
     private var updateTimeJob: Job? = null
@@ -120,5 +125,18 @@ class TrackViewModel(tracksInteractor: TrackInteractor,
             }
             screenStateLiveData.postValue(currentState.updateTrack(updatedTrack))
         }
+    }
+
+    suspend fun addTrackToPlaylist(playlistId: Long) : Boolean {
+        if (playlistInteractor.isTrackInPlaylist(playlistId, track?.trackId)) {
+            return false
+        } else {
+            playlistInteractor.insertPlaylistTrack(PlaylistTrack(playlistId, track?.trackId))
+            return true
+        }
+    }
+
+    suspend fun getPlaylists() : List<Playlist> {
+        return playlistInteractor.getPlaylists().first()
     }
 }

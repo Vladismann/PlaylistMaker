@@ -27,7 +27,7 @@ class MediaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        binding.viewPager.offscreenPageLimit = 1
         binding.viewPager.adapter = MediaViewPagerAdapter(childFragmentManager, lifecycle)
         tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             if (position == 0) tab.setText(R.string.favorites) else tab.setText(R.string.playlists)

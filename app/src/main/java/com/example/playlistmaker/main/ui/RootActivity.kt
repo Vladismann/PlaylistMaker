@@ -1,6 +1,7 @@
 package com.example.playlistmaker.main.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -29,6 +30,25 @@ class RootActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(navController)
         val selectedItemId = savedInstanceState?.getInt(LAST_SELECTED_FRAGMENT) ?: R.id.mediaFragment
         bottomNavigationView.selectedItemId = selectedItemId
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.createPlaylistFragment -> {
+                    binding.bottomNavigationViewLine.visibility = View.GONE
+                    bottomNavigationView.visibility = View.GONE
+                }
+
+                R.id.trackFragment -> {
+                    binding.bottomNavigationViewLine.visibility = View.GONE
+                    bottomNavigationView.visibility = View.GONE
+                }
+
+                else -> {
+                    binding.bottomNavigationViewLine.visibility = View.VISIBLE
+                    bottomNavigationView.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

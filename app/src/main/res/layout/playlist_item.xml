@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.cardview.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        card_view:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/defaultBackground"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="160dp"
+                android:layout_height="160dp">
+
+                <ImageView
+                    android:id="@+id/rvPlaylistImage"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/rounded_corners"
+                    android:clipToOutline="true"
+                    android:outlineProvider="background"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/placeholder" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="160dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="4dp"
+
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/rvPlaylistName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/TrackText"
+                    android:textColor="@color/defaultTextColor"
+                    android:textSize="12dp"
+                    tools:text="@string/text_null"
+                    android:ellipsize="end"
+                    android:maxLines="1"/>
+
+                <TextView
+                    android:id="@+id/rvPlaylistTrackCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/TrackText"
+                    android:textColor="@color/defaultTextColor"
+                    android:textSize="12dp"
+                    tools:text="@string/countTracks"
+                    android:ellipsize="end"
+                    android:maxLines="1"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

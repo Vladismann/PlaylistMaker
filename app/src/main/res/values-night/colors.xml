@@ -8,4 +8,5 @@
     <color name="mainPageBackground">@color/YP_Black</color>
     <color name="switchTumbler">@color/YP_White</color>
     <color name="trackAdditionalText">@color/YP_White</color>
+    <color name="hintTextColor">@color/YP_Blue</color>
 </resources>

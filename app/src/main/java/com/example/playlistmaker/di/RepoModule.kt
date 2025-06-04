@@ -5,10 +5,13 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import android.media.MediaPlayer
 import androidx.room.Room
+import com.example.playlistmaker.media.data.converters.PlaylistDbConverter
 import com.example.playlistmaker.media.data.converters.TrackDbConverter
 import com.example.playlistmaker.media.data.db.AppDatabase
 import com.example.playlistmaker.media.domain.db.FavoriteTrackRepo
 import com.example.playlistmaker.media.domain.db.FavoriteTrackRepoImpl
+import com.example.playlistmaker.media.domain.db.PlaylistRepo
+import com.example.playlistmaker.media.domain.db.PlaylistRepoImpl
 import com.example.playlistmaker.player.data.TrackPlayerImpl
 import com.example.playlistmaker.player.domain.TrackPlayer
 import com.example.playlistmaker.search.data.DataConst.SEARCH_PREFS
@@ -35,10 +38,9 @@ val trackRepoModule = module {
     factory<Gson> { Gson() }
 
     factory<TrackRepository> {
-        TrackRepositoryImpl(get<NetworkClient>(),
-            get<SharedPreferences>(named(SEARCH_PREFS)),
-            get<Gson>(),
-            get<AppDatabase>())
+        TrackRepositoryImpl(
+            get<NetworkClient>(), get<SharedPreferences>(named(SEARCH_PREFS)), get<Gson>(), get<AppDatabase>()
+        )
     }
 
     factory<MediaPlayer> {
@@ -58,12 +60,19 @@ val trackRepoModule = module {
     }
 
     single {
-        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db").build()
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db").fallbackToDestructiveMigration()
+            .build()
     }
 
     factory { TrackDbConverter() }
 
     single<FavoriteTrackRepo> {
         FavoriteTrackRepoImpl(get<AppDatabase>(), get<TrackDbConverter>())
+    }
+
+    factory { PlaylistDbConverter() }
+
+    single<PlaylistRepo> {
+        PlaylistRepoImpl(get<AppDatabase>(), get<PlaylistDbConverter>())
     }
 }
