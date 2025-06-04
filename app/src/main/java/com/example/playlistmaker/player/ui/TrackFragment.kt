@@ -1,14 +1,18 @@
 package com.example.playlistmaker.player.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivityAudioplayerBinding
+import com.example.playlistmaker.databinding.FragmentAudioplayerBinding
 import com.example.playlistmaker.player.view_model.PlayerState
 import com.example.playlistmaker.player.view_model.TrackScreenState
 import com.example.playlistmaker.player.view_model.TrackViewModel
@@ -19,24 +23,36 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class TrackActivity : AppCompatActivity() {
+class TrackFragment : Fragment() {
 
-    private lateinit var binding: ActivityAudioplayerBinding
+    private lateinit var binding: FragmentAudioplayerBinding
     private val viewModel by viewModel<TrackViewModel>()
     private var isClickAllowed = true
     private val clickDebounceDelay = 200L
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAudioplayerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentAudioplayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding.rvPlaylist.adapter = PlaylistSmallAdapter(emptyList())
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                findNavController().popBackStack()
+            }
+        })
+
+        binding.rvPlaylist.adapter =
+            PlaylistSmallAdapter(emptyList())
         binding.apToolbar.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        viewModel.getScreenStateLiveData().observe(this) { screenState ->
+        viewModel.getScreenStateLiveData().observe(viewLifecycleOwner) { screenState ->
             when (screenState) {
                 is TrackScreenState.Content -> {
                     loadTrackInfo(screenState)
@@ -119,13 +135,17 @@ class TrackActivity : AppCompatActivity() {
                     success = viewModel.addTrackToPlaylist(playlist.playlistId!!.toLong())
                     withContext(Dispatchers.Main) {
                         if (success) {
-                            Toast.makeText(this@TrackActivity, "Добавлено в плейлист ${playlist.playlistName}", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Добавлено в плейлист ${playlist.playlistName}", Toast.LENGTH_SHORT
+                            ).show()
                             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                             binding.overlay.visibility = View.GONE
                         } else {
                             Toast.makeText(
-                                this@TrackActivity, "Трек уже добавлен в плейлист ${playlist.playlistName}", Toast.LENGTH_SHORT
+                                requireContext(),
+                                "Трек уже добавлен в плейлист ${playlist.playlistName}",
+                                Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
@@ -133,11 +153,15 @@ class TrackActivity : AppCompatActivity() {
             }
         }
 
+        binding.createPlaylist.setOnClickListener {
+            viewModel.pause()
+            findNavController().navigate(R.id.action_track_to_create_playlist)
+        }
 
     }
 
     private fun loadTrackInfo(screenState: TrackScreenState.Content) {
-        Glide.with(applicationContext).load(screenState.track.artworkUrl100?.replaceAfterLast('/', "512x512bb.jpg"))
+        Glide.with(requireContext()).load(screenState.track.artworkUrl100?.replaceAfterLast('/', "512x512bb.jpg"))
             .transform(RoundedCorners(8)).placeholder(R.drawable.placeholder_full_size).into(binding.apTrackImage)
 
         binding.apTrackName.text = screenState.track.trackName

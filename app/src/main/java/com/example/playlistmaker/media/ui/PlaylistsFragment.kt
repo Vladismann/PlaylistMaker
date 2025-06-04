@@ -30,7 +30,7 @@ class PlaylistsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPlaylistsBinding.inflate(inflater, container, false)
         binding.createPlaylist.setOnClickListener {
-            parentFragment?.findNavController()?.navigate(R.id.action_media_to_newPlaylist)
+            requireParentFragment().requireParentFragment().findNavController()?.navigate(R.id.action_media_to_newPlaylist)
         }
         return binding.root
     }
@@ -69,6 +69,6 @@ class PlaylistsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Можно добавить триггер для обновления данных
+        viewModel.loadPlaylists()
     }
 }

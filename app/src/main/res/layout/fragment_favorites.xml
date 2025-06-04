@@ -12,7 +12,7 @@
         android:visibility="gone"/>
 
     <LinearLayout
-        android:id="@+id/errorMessageElement"
+        android:id="@+id/fErrorMessageElement"
         android:layout_width="312dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -21,14 +21,14 @@
         android:visibility="visible">
 
         <ImageView
-            android:id="@+id/errorImage"
+            android:id="@+id/fErrorImage"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center"
             android:src="@drawable/track_not_found" />
 
         <TextView
-            android:id="@+id/errorText"
+            android:id="@+id/fErrorText"
             style="@style/TrackText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTrack"
+        android:id="@+id/fRvTrack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"

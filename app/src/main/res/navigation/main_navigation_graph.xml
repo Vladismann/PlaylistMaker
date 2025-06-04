@@ -6,7 +6,11 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.example.playlistmaker.search.ui.SearchFragment"
-        android:label="SearchFragment" />
+        android:label="SearchFragment">
+        <action
+            android:id="@+id/action_searchFragment_to_trackFragment"
+            app:destination="@id/trackFragment" />
+    </fragment>
     <fragment
         android:id="@+id/mediaFragment"
         android:name="com.example.playlistmaker.media.ui.MediaFragment"
@@ -32,4 +36,17 @@
             app:popUpTo="@id/mediaFragment"
             app:popUpToInclusive="false" />
     </fragment>
+
+    <fragment
+        android:id="@+id/trackFragment"
+        android:name="com.example.playlistmaker.player.ui.TrackFragment"
+        android:label="TrackFragment">
+        <action
+            android:id="@+id/action_track_to_create_playlist"
+            app:destination="@id/createPlaylistFragment" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_global_to_trackFragment"
+        app:destination="@id/trackFragment" />
 </navigation>

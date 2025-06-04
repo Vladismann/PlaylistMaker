@@ -1,10 +1,10 @@
 package com.example.playlistmaker.search.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentSearchBinding
-import com.example.playlistmaker.player.ui.TrackActivity
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.view_model.SearchScreenState
 import com.example.playlistmaker.search.view_model.SearchViewModel
@@ -48,6 +48,11 @@ class SearchFragment : Fragment() {
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(binding.seToolbar)
         binding.rvTrack.adapter = TrackAdapter(emptyList())
         binding.rvTrackHistory.adapter = TrackAdapter(emptyList())
+
+        findNavController().addOnDestinationChangedListener { _, destination, _ ->
+            Log.d("NAV_DEBUG", "Navigated to ${destination.label}")
+        }
+        Log.d("NAV_DEBUG", "Current destination: ${findNavController().currentDestination?.label}")
 
         setupObservers()
         setupListeners()
@@ -138,7 +143,7 @@ class SearchFragment : Fragment() {
                 binding.historyElement.visibility = View.GONE
                 binding.searchProgressBar.visibility = View.VISIBLE
                 viewModel.saveTrackToHistory(track)
-                startTrackActivity(track)
+                startTrackFragment(track)
             }
         }
 
@@ -146,7 +151,7 @@ class SearchFragment : Fragment() {
             if (clickDebounce()) {
                 binding.searchProgressBar.visibility = View.VISIBLE
                 viewModel.saveTrackToHistory(track)
-                startTrackActivity(track)
+                startTrackFragment(track)
             }
         }
 
@@ -165,10 +170,13 @@ class SearchFragment : Fragment() {
         binding.refreshTracks.visibility = if (showRefresh) View.VISIBLE else View.GONE
     }
 
-    private fun startTrackActivity(track: Track) {
+    private fun startTrackFragment(track: Track) {
         viewModel.saveForAudioPlayer(track)
-        val intent = Intent(requireContext(), TrackActivity::class.java)
-        startActivity(intent)
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(1000)
+            val navController = findNavController()
+            navController.navigate(R.id.action_global_to_trackFragment)
+        }
     }
 
     private fun hideKeyboard() {
