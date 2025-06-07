@@ -9,7 +9,11 @@
         android:label="SearchFragment">
         <action
             android:id="@+id/action_searchFragment_to_trackFragment"
-            app:destination="@id/trackFragment" />
+            app:destination="@id/trackFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_out_down"
+            app:popEnterAnim="@anim/slide_in_down"
+            app:popExitAnim="@anim/slide_out_up"/>
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
@@ -17,7 +21,11 @@
         android:label="MediaFragment">
         <action
             android:id="@+id/action_media_to_newPlaylist"
-            app:destination="@id/createPlaylistFragment" />
+            app:destination="@id/createPlaylistFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_out_down"
+            app:popEnterAnim="@anim/slide_in_down"
+            app:popExitAnim="@anim/slide_out_up"/>
     </fragment>
 
     <fragment
@@ -34,7 +42,11 @@
             android:id="@+id/action_newPlaylist_to_media"
             app:destination="@id/mediaFragment"
             app:popUpTo="@id/mediaFragment"
-            app:popUpToInclusive="false" />
+            app:popUpToInclusive="false"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_out_down"
+            app:popEnterAnim="@anim/slide_in_down"
+            app:popExitAnim="@anim/slide_out_up"/>
     </fragment>
 
     <fragment
@@ -43,10 +55,18 @@
         android:label="TrackFragment">
         <action
             android:id="@+id/action_track_to_create_playlist"
-            app:destination="@id/createPlaylistFragment" />
+            app:destination="@id/createPlaylistFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_out_down"
+            app:popEnterAnim="@anim/slide_in_down"
+            app:popExitAnim="@anim/slide_out_up"/>
     </fragment>
 
     <action
         android:id="@+id/action_global_to_trackFragment"
-        app:destination="@id/trackFragment" />
+        app:destination="@id/trackFragment"
+        app:enterAnim="@anim/slide_in_up"
+        app:exitAnim="@anim/slide_out_down"
+        app:popEnterAnim="@anim/slide_in_down"
+        app:popExitAnim="@anim/slide_out_up"/>
 </navigation>
