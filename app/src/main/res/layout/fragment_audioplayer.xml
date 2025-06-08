@@ -222,7 +222,7 @@
             android:layout_height="4dp"
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
-            android:background="@color/YP_Light_Grey" />
+            android:background="@drawable/rounded_rectangle" />
 
         <TextView
             android:layout_width="match_parent"

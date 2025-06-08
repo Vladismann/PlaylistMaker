@@ -12,8 +12,8 @@ class PlaylistDbConverter {
             playlist.playlistImageUrl)
     }
 
-    fun map(playlist: PlaylistEntity, trackIdkList: List<Long>): Playlist {
-        return Playlist(playlist.playlistId,
+    fun map(playlist: PlaylistEntity?, trackIdkList: List<Long>): Playlist {
+        return Playlist(playlist!!.playlistId,
             playlist.playlistName,
             playlist.playlistDescr,
             playlist.playlistImageUrl,

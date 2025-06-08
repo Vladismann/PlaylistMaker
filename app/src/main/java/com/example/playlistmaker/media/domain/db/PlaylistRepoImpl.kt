@@ -31,6 +31,16 @@ class PlaylistRepoImpl(private val appDatabase: AppDatabase, private val playlis
             .insertPlaylistTrack(PlaylistTrackEntity(null, playlistTrackEntity.playlistId, playlistTrackEntity.trackId))
     }
 
+    override suspend fun getPlaylist(playlistId: Long?): Playlist? {
+        var tracks = appDatabase.playlistTrackDao().getPlaylistTracksIds(playlistId)
+        return playlistDbConverter.map(appDatabase.playlistDao().getPlayList(playlistId), tracks)
+
+    }
+
+    override suspend fun deletePlaylist(playlist: Playlist) {
+        appDatabase.playlistDao().deletePlayList(playlistDbConverter.map(playlist))
+    }
+
     private suspend fun convertFromPlaylistEntity(playlist: List<PlaylistEntity>): List<Playlist> {
         return playlist.map { playlist ->
             var tracks = appDatabase.playlistTrackDao().getPlaylistTracksIds(playlist.playlistId)
