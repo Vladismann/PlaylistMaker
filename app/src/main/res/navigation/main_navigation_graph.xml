@@ -26,7 +26,20 @@
             app:exitAnim="@anim/slide_out_down"
             app:popEnterAnim="@anim/slide_in_down"
             app:popExitAnim="@anim/slide_out_up"/>
+
+        <action
+            android:id="@+id/action_media_to_playlistDetails"
+            app:destination="@id/playlistDetailsFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_out_down"
+            app:popEnterAnim="@anim/slide_in_down"
+            app:popExitAnim="@anim/slide_out_up"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/playlistDetailsFragment"
+        android:name="com.example.playlistmaker.media.ui.PlaylistDetailsFragment"
+        android:label="PlaylistDetailsFragment" />
 
     <fragment
         android:id="@+id/settingsFragment"

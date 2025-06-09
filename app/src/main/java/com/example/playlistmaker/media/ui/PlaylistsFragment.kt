@@ -65,6 +65,10 @@ class PlaylistsFragment : Fragment() {
             }
         }
 
+        (binding.rvPlaylist.adapter as PlaylistAdapter).setOnItemClickListener { playlist ->
+            requireParentFragment().requireParentFragment().findNavController()?.navigate(R.id.action_media_to_playlistDetails)
+        }
+
     }
 
     override fun onResume() {

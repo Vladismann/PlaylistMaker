@@ -12,12 +12,22 @@ class PlaylistAdapter(private var playlist: List<Playlist>): RecyclerView.Adapte
         return PlaylistViewHolder(view)
     }
 
+    private var listener: PlaylistClickListener? = null
+
+    fun setOnItemClickListener(listener: PlaylistClickListener) {
+        this.listener = listener
+    }
+
     override fun getItemCount(): Int {
         return playlist.size
     }
 
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
-        holder.bind(playlist[position])
+        val playlist = playlist[position]
+        holder.bind(playlist)
+        holder.itemView.setOnClickListener {
+            listener?.onItemClick(playlist)
+        }
     }
 
     fun updateData(newData: List<Playlist>) {

@@ -26,35 +26,40 @@
             android:orientation="vertical"
             app:layout_constraintGuide_end="24dp" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/apToolbar"
-            style="@style/ToolbarPageTittle"
-            android:layout_height="48dp"
-            android:gravity="center"
-            app:layout_constraintEnd_toStartOf="parent"
-            app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-            app:layout_constraintTop_toTopOf="parent"
-            app:navigationIcon="@drawable/arrow_back"
-            app:titleTextAppearance="@style/ToolbarPageTittle" />
-
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
+            android:layout_width="match_parent"
+            android:layout_height="360dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
             app:layout_constraintEnd_toStartOf="@id/guidelineRight"
             app:layout_constraintStart_toEndOf="@id/guidelineLeft"
-            app:layout_constraintTop_toBottomOf="@id/apToolbar">
+            app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/plPlaylistImage"
-                android:layout_width="312dp"
-                android:layout_height="312dp"
-                android:background="@color/YP_Light_Grey"
-                android:scaleType="centerCrop"
-                android:src="@drawable/placeholder_full_size" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/plPlaylistImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/YP_Light_Grey"
+                    android:scaleType="center"
+                    android:src="@drawable/placeholder_full_size" />
+
+                <!-- Toolbar -->
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/apToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:elevation="4dp"
+                    app:navigationIcon="@drawable/arrow_back"
+                    app:tint="@color/YP_Black"
+                    app:titleTextAppearance="@style/ToolbarPageTittle" />
+
+            </RelativeLayout>
         </androidx.cardview.widget.CardView>
 
         <TextView
