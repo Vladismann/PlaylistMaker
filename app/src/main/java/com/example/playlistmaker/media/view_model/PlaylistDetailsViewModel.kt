@@ -14,10 +14,12 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
 
     fun getScreenStateLiveData(): LiveData<PlaylistDetailsScreenState> = screenStateLiveData
 
-    init {
+    fun init(playlistId: Long) {
         viewModelScope.launch {
-            var playlist = playlistInteractor.getPlaylist(1)
-            screenStateLiveData.postValue(PlaylistDetailsScreenState.Content(playlist))
+            if (playlistId != -1L) {
+                var playlist = playlistInteractor.getPlaylist(playlistId)
+                screenStateLiveData.postValue(PlaylistDetailsScreenState.Content(playlist))
+            }
         }
     }
 }

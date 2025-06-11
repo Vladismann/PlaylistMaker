@@ -34,7 +34,6 @@ class PlaylistRepoImpl(private val appDatabase: AppDatabase, private val playlis
     override suspend fun getPlaylist(playlistId: Long?): Playlist? {
         var tracks = appDatabase.playlistTrackDao().getPlaylistTracksIds(playlistId)
         return playlistDbConverter.map(appDatabase.playlistDao().getPlayList(playlistId), tracks)
-
     }
 
     override suspend fun deletePlaylist(playlist: Playlist) {

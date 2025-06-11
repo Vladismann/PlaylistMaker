@@ -66,7 +66,10 @@ class PlaylistsFragment : Fragment() {
         }
 
         (binding.rvPlaylist.adapter as PlaylistAdapter).setOnItemClickListener { playlist ->
-            requireParentFragment().requireParentFragment().findNavController()?.navigate(R.id.action_media_to_playlistDetails)
+            val bundle = Bundle().apply {
+                putLong("playlistId", playlist.playlistId ?: -1L)
+            }
+            requireParentFragment().requireParentFragment().findNavController()?.navigate(R.id.action_media_to_playlistDetails, bundle)
         }
 
     }
