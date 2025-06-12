@@ -73,6 +73,6 @@ val trackRepoModule = module {
     factory { PlaylistDbConverter() }
 
     single<PlaylistRepo> {
-        PlaylistRepoImpl(get<AppDatabase>(), get<PlaylistDbConverter>())
+        PlaylistRepoImpl(get<AppDatabase>(), get<PlaylistDbConverter>(), get<TrackDbConverter>())
     }
 }

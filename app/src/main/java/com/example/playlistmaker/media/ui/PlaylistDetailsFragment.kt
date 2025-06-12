@@ -57,8 +57,10 @@ class PlaylistDetailsFragment : Fragment() {
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {
         if (!screenState.playlist?.playlistImageUrl.isNullOrEmpty()) {
-            Glide.with(this@PlaylistDetailsFragment).load(screenState.playlist?.playlistImageUrl?.toUri())
-                .placeholder(R.drawable.placeholder).into(binding.plPlaylistImage)
+            Glide.with(this@PlaylistDetailsFragment)
+                .load(screenState.playlist?.playlistImageUrl?.toUri())
+                .placeholder(R.drawable.placeholder_full_size)
+                .into(binding.plPlaylistImage)
         } else {
             binding.plPlaylistImage.setImageResource(R.drawable.placeholder)
         }
