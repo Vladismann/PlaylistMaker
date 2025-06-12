@@ -46,8 +46,7 @@ class TrackFragment : Fragment() {
             }
         })
 
-        binding.rvPlaylist.adapter =
-            PlaylistSmallAdapter(emptyList())
+        binding.rvPlaylist.adapter = PlaylistSmallAdapter(emptyList())
         binding.apToolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
@@ -136,8 +135,7 @@ class TrackFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (success) {
                             Toast.makeText(
-                                requireContext(),
-                                "Добавлено в плейлист ${playlist.playlistName}", Toast.LENGTH_SHORT
+                                requireContext(), "Добавлено в плейлист ${playlist.playlistName}", Toast.LENGTH_SHORT
                             ).show()
                             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
                             binding.overlay.visibility = View.GONE

@@ -17,5 +17,5 @@ interface TrackPlaylistDao {
     suspend fun deleteTrackEntity(trackEntity: TrackPlaylistEntity) : Int
 
     @Query("SELECT * FROM track_playlist_table WHERE trackId IN (:trackIds) ORDER BY createdAt DESC")
-    suspend fun getPlaylistTracks(trackIds: List<Long>): Flow<List<TrackPlaylistEntity>>
+    fun getPlaylistTracks(trackIds: List<Long>): Flow<List<TrackPlaylistEntity>>
 }

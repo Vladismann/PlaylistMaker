@@ -13,6 +13,7 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistDetailsBinding
 import com.example.playlistmaker.media.view_model.PlaylistDetailsScreenState
 import com.example.playlistmaker.media.view_model.PlaylistDetailsViewModel
+import com.example.playlistmaker.search.ui.TrackAdapter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistDetailsFragment : Fragment() {
@@ -31,12 +32,14 @@ class PlaylistDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val playlistId = arguments?.getLong("playlistId") ?: -1L
         viewModel.init(playlistId)
+        binding.rvPlaylist.adapter = TrackAdapter(emptyList())
 
         viewModel.getScreenStateLiveData().observe(viewLifecycleOwner) { screenState ->
             when (screenState) {
                 is PlaylistDetailsScreenState.Content -> {
                     loadTrackInfo(screenState)
                 }
+
                 else -> {
                 }
             }
@@ -46,11 +49,13 @@ class PlaylistDetailsFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                findNavController().popBackStack()
-            }
-        })
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().popBackStack()
+                }
+            })
 
 
     }
@@ -59,13 +64,20 @@ class PlaylistDetailsFragment : Fragment() {
         if (!screenState.playlist?.playlistImageUrl.isNullOrEmpty()) {
             Glide.with(this@PlaylistDetailsFragment)
                 .load(screenState.playlist?.playlistImageUrl?.toUri())
-                .placeholder(R.drawable.placeholder_full_size)
-                .into(binding.plPlaylistImage)
+                .placeholder(R.drawable.placeholder_full_size).into(binding.plPlaylistImage)
         } else {
             binding.plPlaylistImage.setImageResource(R.drawable.placeholder)
         }
 
         binding.plPlaylistName.text = screenState.playlist?.playlistName
         binding.plPlaylistDescr.text = screenState.playlist?.playlistDescr
+        (binding.rvPlaylist.adapter as TrackAdapter).updateData(screenState.tracks)
+        binding.plPlaylistTime.text = this@PlaylistDetailsFragment.resources.getQuantityString(
+            R.plurals.minute_count, screenState.totalTime.toInt(), screenState.totalTime,
+        )
+        binding.plPlaylistCount.text = this@PlaylistDetailsFragment.resources.getQuantityString(
+            R.plurals.track_count, screenState.trackCount, screenState.trackCount
+        )
+
     }
 }
