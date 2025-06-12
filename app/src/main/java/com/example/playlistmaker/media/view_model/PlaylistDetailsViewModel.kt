@@ -5,13 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.media.domain.db.PlaylistInteractor
+import com.example.playlistmaker.search.domain.api.TrackInteractor
+import com.example.playlistmaker.search.domain.models.Track
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteractor) : ViewModel() {
+class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteractor, private val trackInteractor: TrackInteractor) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<PlaylistDetailsScreenState>(PlaylistDetailsScreenState.Loading)
 
@@ -21,7 +23,7 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
         timeZone = TimeZone.getTimeZone("UTC")
     }
 
-    fun init(playlistId: Long) {
+    fun updateDetails(playlistId: Long) {
         viewModelScope.launch {
             if (playlistId != -1L) {
                 var playlist = playlistInteractor.getPlaylist(playlistId)
@@ -38,5 +40,9 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
                 screenStateLiveData.postValue(PlaylistDetailsScreenState.Content(playlist, tracks, totalTime, totalCount))
             }
         }
+    }
+
+    fun saveForAudioPlayer(track: Track) {
+        trackInteractor.writeTrackForAudioPlayer(track)
     }
 }

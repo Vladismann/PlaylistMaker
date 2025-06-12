@@ -149,6 +149,7 @@ class SearchFragment : Fragment() {
 
         (binding.rvTrackHistory.adapter as TrackAdapter).setOnItemClickListener { track ->
             if (clickDebounce()) {
+                binding.historyElement.visibility = View.GONE
                 binding.searchProgressBar.visibility = View.VISIBLE
                 viewModel.saveTrackToHistory(track)
                 startTrackFragment(track)

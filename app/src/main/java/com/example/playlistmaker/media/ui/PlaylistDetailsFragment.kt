@@ -7,17 +7,23 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistDetailsBinding
 import com.example.playlistmaker.media.view_model.PlaylistDetailsScreenState
 import com.example.playlistmaker.media.view_model.PlaylistDetailsViewModel
+import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.TrackAdapter
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistDetailsFragment : Fragment() {
 
+    private var isClickAllowed = true
+    private val clickDebounceDelay = 1000L
     private lateinit var binding: FragmentPlaylistDetailsBinding
     private val viewModel by viewModel<PlaylistDetailsViewModel>()
 
@@ -31,7 +37,7 @@ class PlaylistDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val playlistId = arguments?.getLong("playlistId") ?: -1L
-        viewModel.init(playlistId)
+        viewModel.updateDetails(playlistId)
         binding.rvPlaylist.adapter = TrackAdapter(emptyList())
 
         viewModel.getScreenStateLiveData().observe(viewLifecycleOwner) { screenState ->
@@ -57,7 +63,11 @@ class PlaylistDetailsFragment : Fragment() {
                 }
             })
 
-
+        (binding.rvPlaylist.adapter as TrackAdapter).setOnItemClickListener { track ->
+            if (clickDebounce()) {
+                startTrackFragment(track)
+            }
+        }
     }
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {
@@ -66,7 +76,7 @@ class PlaylistDetailsFragment : Fragment() {
                 .load(screenState.playlist?.playlistImageUrl?.toUri())
                 .placeholder(R.drawable.placeholder_full_size).into(binding.plPlaylistImage)
         } else {
-            binding.plPlaylistImage.setImageResource(R.drawable.placeholder)
+            binding.plPlaylistImage.setImageResource(R.drawable.placeholder_full_size)
         }
 
         binding.plPlaylistName.text = screenState.playlist?.playlistName
@@ -79,5 +89,26 @@ class PlaylistDetailsFragment : Fragment() {
             R.plurals.track_count, screenState.trackCount, screenState.trackCount
         )
 
+    }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(clickDebounceDelay)
+                isClickAllowed = true
+            }
+        }
+        return current
+    }
+
+    private fun startTrackFragment(track: Track) {
+        viewModel.saveForAudioPlayer(track)
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(1000)
+            val navController = findNavController()
+            navController.navigate(R.id.action_global_to_trackFragment)
+        }
     }
 }
