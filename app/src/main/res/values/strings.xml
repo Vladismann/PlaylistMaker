@@ -37,6 +37,10 @@
     <string name="countTracks">0 треков</string>
     <string name="countMinutes">0 минут</string>
     <string name="addToPlaylist">Добавить в плейлист</string>
+    <string name="sharePlaylist">Поделиться</string>
+    <string name="editPlaylist">Редактировать информацию</string>
+    <string name="deletelaylist">Удалить плейлист</string>
+
 
     <plurals name="track_count">
         <item quantity="one">%d трек</item>

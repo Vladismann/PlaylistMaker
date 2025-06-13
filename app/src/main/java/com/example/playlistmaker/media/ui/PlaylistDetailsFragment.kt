@@ -14,10 +14,12 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistDetailsBinding
+import com.example.playlistmaker.databinding.PlaylistSmallItemBinding
 import com.example.playlistmaker.media.view_model.PlaylistDetailsScreenState
 import com.example.playlistmaker.media.view_model.PlaylistDetailsViewModel
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.TrackAdapter
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -27,12 +29,14 @@ class PlaylistDetailsFragment : Fragment() {
     private var isClickAllowed = true
     private val clickDebounceDelay = 1000L
     private lateinit var binding: FragmentPlaylistDetailsBinding
+    private lateinit var itemBinding: PlaylistSmallItemBinding
     private val viewModel by viewModel<PlaylistDetailsViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentPlaylistDetailsBinding.inflate(inflater, container, false)
+        itemBinding = PlaylistSmallItemBinding.bind(binding.root.findViewById(R.id.playlistMenu))
         return binding.root
     }
 
@@ -47,7 +51,6 @@ class PlaylistDetailsFragment : Fragment() {
                 is PlaylistDetailsScreenState.Content -> {
                     loadTrackInfo(screenState)
                 }
-
                 else -> {
                 }
             }
@@ -75,7 +78,15 @@ class PlaylistDetailsFragment : Fragment() {
             showDeleteConfirmationDialog(track)
             true
         }
-        binding.plPlaylistShare.setOnClickListener { shareApp() }
+        binding.plPlaylistMore.setOnClickListener {
+            val behavior = BottomSheetBehavior.from(binding.playlistMenu).apply {
+                state = BottomSheetBehavior.STATE_EXPANDED
+                skipCollapsed = true
+                isHideable = true
+            }
+        }
+        binding.plPlaylistShare.setOnClickListener { sharePlaylist() }
+        binding.menuShare.setOnClickListener { sharePlaylist() }
     }
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {
@@ -83,8 +94,12 @@ class PlaylistDetailsFragment : Fragment() {
             Glide.with(this@PlaylistDetailsFragment)
                 .load(screenState.playlist?.playlistImageUrl?.toUri())
                 .placeholder(R.drawable.placeholder_full_size).into(binding.plPlaylistImage)
+            Glide.with(this@PlaylistDetailsFragment)
+                .load(screenState.playlist?.playlistImageUrl?.toUri())
+                .placeholder(R.drawable.placeholder_full_size).into(itemBinding.rvSmPlaylistImage)
         } else {
             binding.plPlaylistImage.setImageResource(R.drawable.placeholder_full_size)
+            itemBinding.rvSmPlaylistImage.setImageResource(R.drawable.placeholder)
         }
 
         binding.plPlaylistName.text = screenState.playlist?.playlistName
@@ -96,7 +111,10 @@ class PlaylistDetailsFragment : Fragment() {
         binding.plPlaylistCount.text = this@PlaylistDetailsFragment.resources.getQuantityString(
             R.plurals.track_count, screenState.trackCount, screenState.trackCount
         )
-
+        itemBinding.rvSmPlaylistName.text = screenState.playlist?.playlistName
+        itemBinding.rvSmPlaylistTrackCount.text = this@PlaylistDetailsFragment.resources.getQuantityString(
+            R.plurals.track_count, screenState.trackCount, screenState.trackCount
+        )
     }
 
     private fun clickDebounce(): Boolean {
@@ -133,7 +151,7 @@ class PlaylistDetailsFragment : Fragment() {
             .show()
     }
 
-    private fun shareApp() {
+    private fun sharePlaylist() {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             val shareMessage = viewModel.getShareMessage(binding.plPlaylistCount.text.toString())
