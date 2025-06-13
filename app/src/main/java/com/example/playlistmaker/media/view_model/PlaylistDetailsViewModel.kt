@@ -24,6 +24,7 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
     }
 
     var actualPlaylistId = 0L
+        get() = field
 
     fun updateDetails(playlistId: Long) {
         viewModelScope.launch {
@@ -70,7 +71,7 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
             stringBuilder.append("\n" + countWithPlurals)
             for(i in 0 until content.trackCount) {
                 val track = content.tracks[i]
-                stringBuilder.append("\n" + "${i + 1}. ${track.artistName} - ${track.trackName} ${track.trackTime}")
+                stringBuilder.append("\n" + "${i + 1}. ${track.artistName} - ${track.trackName} (${track.trackTime})")
             }
         }
         return stringBuilder.toString()

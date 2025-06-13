@@ -88,6 +88,14 @@ class PlaylistDetailsFragment : Fragment() {
         binding.plPlaylistShare.setOnClickListener { sharePlaylist() }
         binding.menuShare.setOnClickListener { sharePlaylist() }
         binding.menuDelete.setOnClickListener { showDeletePlaylistConfirmationDialog() }
+
+        binding.menuEdit.setOnClickListener {
+            val bundle = Bundle().apply {
+                putLong("playlistId", viewModel.actualPlaylistId)
+            }
+            val navController = findNavController()
+            navController.navigate(R.id.action_media_to_editPlaylist, bundle)
+        }
     }
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {

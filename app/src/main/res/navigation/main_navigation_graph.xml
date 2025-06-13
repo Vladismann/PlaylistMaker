@@ -13,7 +13,7 @@
             app:enterAnim="@anim/slide_in_up"
             app:exitAnim="@anim/slide_out_down"
             app:popEnterAnim="@anim/slide_in_down"
-            app:popExitAnim="@anim/slide_out_up"/>
+            app:popExitAnim="@anim/slide_out_up" />
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
@@ -25,7 +25,7 @@
             app:enterAnim="@anim/slide_in_up"
             app:exitAnim="@anim/slide_out_down"
             app:popEnterAnim="@anim/slide_in_down"
-            app:popExitAnim="@anim/slide_out_up"/>
+            app:popExitAnim="@anim/slide_out_up" />
 
         <action
             android:id="@+id/action_media_to_playlistDetails"
@@ -33,13 +33,26 @@
             app:enterAnim="@anim/slide_in_up"
             app:exitAnim="@anim/slide_out_down"
             app:popEnterAnim="@anim/slide_in_down"
-            app:popExitAnim="@anim/slide_out_up"/>
+            app:popExitAnim="@anim/slide_out_up" />
     </fragment>
 
     <fragment
         android:id="@+id/playlistDetailsFragment"
         android:name="com.example.playlistmaker.media.ui.PlaylistDetailsFragment"
-        android:label="PlaylistDetailsFragment" />
+        android:label="PlaylistDetailsFragment">
+        <action
+            android:id="@+id/action_media_to_editPlaylist"
+            app:destination="@id/editPlaylistFragment"
+            app:enterAnim="@anim/slide_in_up"
+            app:exitAnim="@anim/slide_out_down"
+            app:popEnterAnim="@anim/slide_in_down"
+            app:popExitAnim="@anim/slide_out_up" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editPlaylistFragment"
+        android:name="com.example.playlistmaker.media.ui.EditPlaylistFragment"
+        android:label="EditPlaylistFragment" />
 
     <fragment
         android:id="@+id/settingsFragment"
@@ -54,12 +67,12 @@
         <action
             android:id="@+id/action_newPlaylist_to_media"
             app:destination="@id/mediaFragment"
-            app:popUpTo="@id/mediaFragment"
-            app:popUpToInclusive="false"
             app:enterAnim="@anim/slide_in_up"
             app:exitAnim="@anim/slide_out_down"
             app:popEnterAnim="@anim/slide_in_down"
-            app:popExitAnim="@anim/slide_out_up"/>
+            app:popExitAnim="@anim/slide_out_up"
+            app:popUpTo="@id/mediaFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment
@@ -72,7 +85,7 @@
             app:enterAnim="@anim/slide_in_up"
             app:exitAnim="@anim/slide_out_down"
             app:popEnterAnim="@anim/slide_in_down"
-            app:popExitAnim="@anim/slide_out_up"/>
+            app:popExitAnim="@anim/slide_out_up" />
     </fragment>
 
     <action
@@ -81,5 +94,5 @@
         app:enterAnim="@anim/slide_in_up"
         app:exitAnim="@anim/slide_out_down"
         app:popEnterAnim="@anim/slide_in_down"
-        app:popExitAnim="@anim/slide_out_up"/>
+        app:popExitAnim="@anim/slide_out_up" />
 </navigation>
