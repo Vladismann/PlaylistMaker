@@ -1,5 +1,6 @@
 package com.example.playlistmaker.media.domain.db
 
+import androidx.room.Transaction
 import com.example.playlistmaker.media.data.converters.PlaylistDbConverter
 import com.example.playlistmaker.media.data.converters.TrackDbConverter
 import com.example.playlistmaker.media.data.db.AppDatabase
@@ -42,8 +43,11 @@ class PlaylistRepoImpl(
         return playlistDbConverter.map(appDatabase.playlistDao().getPlayList(playlistId), tracks)
     }
 
-    override suspend fun deletePlaylist(playlist: Playlist) {
-        appDatabase.playlistDao().deletePlayList(playlistDbConverter.map(playlist))
+    @Transaction
+    override suspend fun deletePlaylist(playlistId: Long?) {
+        var tracksIds = appDatabase.playlistTrackDao().getPlaylistTracksIds(playlistId)
+        tracksIds.forEach { trackId -> deleteTrackFromPlaylist(playlistId, trackId)}
+        appDatabase.playlistDao().deletePlayList(playlistId)
     }
 
     override suspend fun playlistTracks(playlistId: Long?): Flow<List<Track>> {
@@ -51,11 +55,11 @@ class PlaylistRepoImpl(
         return appDatabase.trackPlaylistDao().getPlaylistTracks(tracksIds).map { tracks -> convertFromTrackEntity(tracks) }
     }
 
-
     override suspend fun addTrackToPlaylist(track: Track) {
         appDatabase.trackPlaylistDao().insertPlaylistTrack(trackDbConverter.mapForPlaylist(track))
     }
 
+    @Transaction
     override suspend fun deleteTrackFromPlaylist(playlistId: Long?, trackId: Long?) {
         appDatabase.playlistTrackDao().deletePlaylistTrackEntity(playlistId, trackId)
         if (!appDatabase.playlistTrackDao().isTrackHaveAnyPlaylist(trackId)) {

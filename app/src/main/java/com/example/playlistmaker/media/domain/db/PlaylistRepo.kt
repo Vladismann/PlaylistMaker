@@ -17,7 +17,7 @@ interface PlaylistRepo {
 
     suspend fun getPlaylist(playlistId: Long?): Playlist?
 
-    suspend fun deletePlaylist(playlist: Playlist)
+    suspend fun deletePlaylist(playlistId: Long?)
 
     suspend fun playlistTracks(playlistId: Long?): Flow<List<Track>>
 

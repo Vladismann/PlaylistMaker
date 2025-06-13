@@ -75,4 +75,10 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
         }
         return stringBuilder.toString()
     }
+
+    fun deletePlaylist() {
+        viewModelScope.launch {
+            playlistInteractor.deletePlaylist(actualPlaylistId)
+        }
+    }
 }

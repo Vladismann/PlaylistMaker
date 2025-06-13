@@ -75,7 +75,7 @@ class PlaylistDetailsFragment : Fragment() {
         }
 
         (binding.rvPlaylist.adapter as TrackAdapter).setOnItemLongClickListener { track ->
-            showDeleteConfirmationDialog(track)
+            showDeleteTrackConfirmationDialog(track)
             true
         }
         binding.plPlaylistMore.setOnClickListener {
@@ -87,6 +87,7 @@ class PlaylistDetailsFragment : Fragment() {
         }
         binding.plPlaylistShare.setOnClickListener { sharePlaylist() }
         binding.menuShare.setOnClickListener { sharePlaylist() }
+        binding.menuDelete.setOnClickListener { showDeletePlaylistConfirmationDialog() }
     }
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {
@@ -138,7 +139,7 @@ class PlaylistDetailsFragment : Fragment() {
         }
     }
 
-    private fun showDeleteConfirmationDialog(track: Track) {
+    private fun showDeleteTrackConfirmationDialog(track: Track) {
         AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
             .setMessage("Хотите удалить трек?")
             .setNegativeButton("НЕТ") { dialog, _ ->
@@ -147,6 +148,20 @@ class PlaylistDetailsFragment : Fragment() {
             .setPositiveButton("ДА") { dialog, _ ->
                 dialog.dismiss()
                 viewModel.deleteTrackFromPlaylist(track.trackId)
+            }
+            .show()
+    }
+
+    private fun showDeletePlaylistConfirmationDialog() {
+        AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+            .setMessage("Хотите удалить ${binding.plPlaylistName.text}?")
+            .setNegativeButton("НЕТ") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("ДА") { dialog, _ ->
+                dialog.dismiss()
+                viewModel.deletePlaylist()
+                findNavController().popBackStack()
             }
             .show()
     }
