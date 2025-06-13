@@ -55,4 +55,24 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
             updateDetails(actualPlaylistId)
         }
     }
+
+    fun getShareMessage(countWithPlurals : String) : String {
+        val stringBuilder = StringBuilder()
+        if (screenStateLiveData.value is PlaylistDetailsScreenState.Content) {
+            val content = screenStateLiveData.value as PlaylistDetailsScreenState.Content
+            if (content.trackCount == 0) {
+                return ""
+            }
+            stringBuilder.append(content.playlist?.playlistName)
+            if (!content.playlist?.playlistDescr.isNullOrBlank()) {
+                stringBuilder.append("\n" + content.playlist?.playlistDescr)
+            }
+            stringBuilder.append("\n" + countWithPlurals)
+            for(i in 0 until content.trackCount) {
+                val track = content.tracks[i]
+                stringBuilder.append("\n" + "${i + 1}. ${track.artistName} - ${track.trackName} ${track.trackTime}")
+            }
+        }
+        return stringBuilder.toString()
+    }
 }

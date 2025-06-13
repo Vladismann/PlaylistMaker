@@ -1,6 +1,7 @@
 package com.example.playlistmaker.media.ui
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -74,6 +75,7 @@ class PlaylistDetailsFragment : Fragment() {
             showDeleteConfirmationDialog(track)
             true
         }
+        binding.plPlaylistShare.setOnClickListener { shareApp() }
     }
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {
@@ -129,5 +131,21 @@ class PlaylistDetailsFragment : Fragment() {
                 viewModel.deleteTrackFromPlaylist(track.trackId)
             }
             .show()
+    }
+
+    private fun shareApp() {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            val shareMessage = viewModel.getShareMessage(binding.plPlaylistCount.text.toString())
+            if (shareMessage.isBlank()) {
+                AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+                    .setMessage("В этом плейлисте нет списка треков, которым можно поделиться")
+                    .setPositiveButton("OK", null)
+                    .show()
+                return
+            }
+            putExtra(Intent.EXTRA_TEXT, shareMessage)
+        }
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_from)))
     }
 }
