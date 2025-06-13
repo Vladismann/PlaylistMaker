@@ -23,9 +23,12 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
         timeZone = TimeZone.getTimeZone("UTC")
     }
 
+    var actualPlaylistId = 0L
+
     fun updateDetails(playlistId: Long) {
         viewModelScope.launch {
             if (playlistId != -1L) {
+                actualPlaylistId = playlistId
                 var playlist = playlistInteractor.getPlaylist(playlistId)
                 var tracks = playlistInteractor.playlistTracks(playlistId).first()
                 var totalTime = 0L
@@ -44,5 +47,12 @@ class PlaylistDetailsViewModel(private val playlistInteractor: PlaylistInteracto
 
     fun saveForAudioPlayer(track: Track) {
         trackInteractor.writeTrackForAudioPlayer(track)
+    }
+
+    fun deleteTrackFromPlaylist(trackId: Long?) {
+        viewModelScope.launch {
+            playlistInteractor.deleteTrackFromPlaylist(actualPlaylistId, trackId)
+            updateDetails(actualPlaylistId)
+        }
     }
 }

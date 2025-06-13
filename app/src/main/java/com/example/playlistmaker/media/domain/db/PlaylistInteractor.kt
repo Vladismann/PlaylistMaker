@@ -21,5 +21,5 @@ interface PlaylistInteractor {
 
     suspend fun addTrackToPlaylist(track: Track)
 
-    suspend fun deleteTrackFromPlaylist(track: Track)
+    suspend fun deleteTrackFromPlaylist(playlistId: Long?, trackId: Long?)
 }

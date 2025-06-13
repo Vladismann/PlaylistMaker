@@ -16,4 +16,10 @@ interface PlaylistTrackDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM playlist_track_table WHERE playlistId = :playlistId AND trackId = :trackId)")
     suspend fun isTracksInPlayList(playlistId: Long?, trackId: Long?): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM playlist_track_table WHERE trackId = :trackId)")
+    suspend fun isTrackHaveAnyPlaylist(trackId: Long?): Boolean
+
+    @Query("DELETE FROM playlist_track_table WHERE playlistId = :playlistId AND trackId = :trackId")
+    suspend fun deletePlaylistTrackEntity(playlistId: Long?, trackId: Long?) : Int
 }

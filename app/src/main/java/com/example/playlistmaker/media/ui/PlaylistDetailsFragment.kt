@@ -1,5 +1,6 @@
 package com.example.playlistmaker.media.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -68,6 +69,11 @@ class PlaylistDetailsFragment : Fragment() {
                 startTrackFragment(track)
             }
         }
+
+        (binding.rvPlaylist.adapter as TrackAdapter).setOnItemLongClickListener { track ->
+            showDeleteConfirmationDialog(track)
+            true
+        }
     }
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {
@@ -110,5 +116,18 @@ class PlaylistDetailsFragment : Fragment() {
             val navController = findNavController()
             navController.navigate(R.id.action_global_to_trackFragment)
         }
+    }
+
+    private fun showDeleteConfirmationDialog(track: Track) {
+        AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+            .setMessage("Хотите удалить трек?")
+            .setNegativeButton("НЕТ") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("ДА") { dialog, _ ->
+                dialog.dismiss()
+                viewModel.deleteTrackFromPlaylist(track.trackId)
+            }
+            .show()
     }
 }

@@ -56,8 +56,11 @@ class PlaylistRepoImpl(
         appDatabase.trackPlaylistDao().insertPlaylistTrack(trackDbConverter.mapForPlaylist(track))
     }
 
-    override suspend fun deleteTrackFromPlaylist(track: Track) {
-        appDatabase.trackPlaylistDao().deleteTrackEntity(trackDbConverter.mapForPlaylist(track))
+    override suspend fun deleteTrackFromPlaylist(playlistId: Long?, trackId: Long?) {
+        appDatabase.playlistTrackDao().deletePlaylistTrackEntity(playlistId, trackId)
+        if (!appDatabase.playlistTrackDao().isTrackHaveAnyPlaylist(trackId)) {
+            appDatabase.trackPlaylistDao().deleteTrackEntity(trackId)
+        }
     }
 
     private suspend fun convertFromPlaylistEntity(playlist: List<PlaylistEntity>): List<Playlist> {
