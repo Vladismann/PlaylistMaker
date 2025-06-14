@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    version = 4,
-    entities = [TrackEntity::class, PlaylistEntity::class, PlaylistTrackEntity::class],
+    version = 5,
+    entities = [TrackEntity::class, PlaylistEntity::class, PlaylistTrackEntity::class, TrackPlaylistEntity::class],
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -17,6 +17,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
 
     abstract fun playlistTrackDao(): PlaylistTrackDao
+
+    abstract fun trackPlaylistDao(): TrackPlaylistDao
 
     companion object {
         fun build(context: Context): AppDatabase {

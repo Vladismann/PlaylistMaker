@@ -21,10 +21,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class TrackViewModel(tracksInteractor: TrackInteractor,
-                     private val trackPlayer: TrackPlayerInteractor,
-                     private val favoriteTrackInteractor: FavoriteTrackInteractor,
-                     private val playlistInteractor: PlaylistInteractor) : ViewModel() {
+class TrackViewModel(
+    tracksInteractor: TrackInteractor,
+    private val trackPlayer: TrackPlayerInteractor,
+    private val favoriteTrackInteractor: FavoriteTrackInteractor,
+    private val playlistInteractor: PlaylistInteractor
+) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
     private var updateTimeJob: Job? = null
@@ -127,16 +129,19 @@ class TrackViewModel(tracksInteractor: TrackInteractor,
         }
     }
 
-    suspend fun addTrackToPlaylist(playlistId: Long) : Boolean {
+    suspend fun addTrackToPlaylist(playlistId: Long): Boolean {
         if (playlistInteractor.isTrackInPlaylist(playlistId, track?.trackId)) {
             return false
         } else {
-            playlistInteractor.insertPlaylistTrack(PlaylistTrack(playlistId, track?.trackId))
+            if (track != null) {
+                playlistInteractor.insertPlaylistTrack(PlaylistTrack(playlistId, track.trackId))
+                playlistInteractor.addTrackToPlaylist(track)
+            }
             return true
         }
     }
 
-    suspend fun getPlaylists() : List<Playlist> {
+    suspend fun getPlaylists(): List<Playlist> {
         return playlistInteractor.getPlaylists().first()
     }
 }

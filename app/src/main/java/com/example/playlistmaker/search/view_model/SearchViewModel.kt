@@ -14,6 +14,7 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CONTENT_UPDATE_DELAY = 1200L
         private const val TRACK_HISTORY_SIZE = 10
     }
 
@@ -73,8 +74,10 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
         }
         currentHistory.add(0, track)
         trackInteractor.writeTracksHistory(currentHistory)
-
-        screenState.value = (screenState.value as? SearchScreenState.Content)?.copy(historyTracks = currentHistory)
+        viewModelScope.launch {
+            delay(CONTENT_UPDATE_DELAY)
+            screenState.value = (screenState.value as? SearchScreenState.Content)?.copy(historyTracks = currentHistory)
+        }
     }
 
     fun saveForAudioPlayer(track: Track) {

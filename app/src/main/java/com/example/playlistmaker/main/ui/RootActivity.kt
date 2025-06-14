@@ -38,7 +38,17 @@ class RootActivity : AppCompatActivity() {
                     bottomNavigationView.visibility = View.GONE
                 }
 
+                R.id.playlistDetailsFragment -> {
+                    binding.bottomNavigationViewLine.visibility = View.GONE
+                    bottomNavigationView.visibility = View.GONE
+                }
+
                 R.id.trackFragment -> {
+                    binding.bottomNavigationViewLine.visibility = View.GONE
+                    bottomNavigationView.visibility = View.GONE
+                }
+
+                R.id.editPlaylistFragment -> {
                     binding.bottomNavigationViewLine.visibility = View.GONE
                     bottomNavigationView.visibility = View.GONE
                 }

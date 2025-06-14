@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import com.example.playlistmaker.media.domain.db.PlaylistInteractor
 import com.example.playlistmaker.media.domain.models.Playlist
 
-class CreatePlaylistViewModel(private val playlistInteractor: PlaylistInteractor) : ViewModel() {
+open class CreatePlaylistViewModel(private val playlistInteractor: PlaylistInteractor) : ViewModel() {
 
-    private val _uiState = MutableLiveData(CreatePlaylistUiState())
+    protected val _uiState = MutableLiveData(CreatePlaylistUiState())
     val uiState: LiveData<CreatePlaylistUiState> = _uiState
 
     fun onNameChanged(name: String) {
@@ -29,7 +29,7 @@ class CreatePlaylistViewModel(private val playlistInteractor: PlaylistInteractor
         _uiState.value = current.copy(imagePath = path)
     }
 
-    suspend fun createPlaylist() {
+    open suspend fun createPlaylist() {
         val state = _uiState.value ?: return
         val playlist = Playlist(null, state.name, state.description, state.imagePath, null)
         playlistInteractor.createPlaylist(playlist)
