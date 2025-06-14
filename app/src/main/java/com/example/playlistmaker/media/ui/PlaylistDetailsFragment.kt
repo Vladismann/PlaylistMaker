@@ -20,6 +20,7 @@ import com.example.playlistmaker.media.view_model.PlaylistDetailsViewModel
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.ui.TrackAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -31,6 +32,7 @@ class PlaylistDetailsFragment : Fragment() {
     private lateinit var binding: FragmentPlaylistDetailsBinding
     private lateinit var itemBinding: PlaylistSmallItemBinding
     private val viewModel by viewModel<PlaylistDetailsViewModel>()
+    private var wasEmptySnackbarShown = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -124,6 +126,13 @@ class PlaylistDetailsFragment : Fragment() {
         itemBinding.rvSmPlaylistTrackCount.text = this@PlaylistDetailsFragment.resources.getQuantityString(
             R.plurals.track_count, screenState.trackCount, screenState.trackCount
         )
+        if (screenState.trackCount == 0 && !wasEmptySnackbarShown) {
+            Snackbar.make(requireActivity().findViewById(android.R.id.content),
+                "В этом плейлисте нет ни одного трека",
+                800
+            ).show()
+            wasEmptySnackbarShown = true
+        }
     }
 
     private fun clickDebounce(): Boolean {
