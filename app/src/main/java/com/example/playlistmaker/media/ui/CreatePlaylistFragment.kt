@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
@@ -100,6 +101,7 @@ open class CreatePlaylistFragment : Fragment() {
                 }
             }
         })
+
     }
 
     private fun saveImageToPrivateStorage(uri: Uri) {
@@ -121,5 +123,15 @@ open class CreatePlaylistFragment : Fragment() {
             .setMessage("Все несохраненные данные будут потеряны")
             .setNegativeButton("Отмена") { dialog, _ -> dialog.dismiss() }
             .setPositiveButton("Завершить") { _, _ -> findNavController().popBackStack() }.create().show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
     }
 }
