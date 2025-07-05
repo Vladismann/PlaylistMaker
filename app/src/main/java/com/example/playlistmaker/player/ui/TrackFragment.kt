@@ -65,17 +65,19 @@ class TrackFragment : Fragment() {
 
         binding.apPlayAudioButton.setOnPlaybackToggleListener { shouldPlay ->
             if (!clickDebounce()) return@setOnPlaybackToggleListener
+            val state = viewModel.getScreenStateLiveData().value as? TrackScreenState.Content
+                ?: return@setOnPlaybackToggleListener
 
-            val state = viewModel.getScreenStateLiveData().value as? TrackScreenState.Content ?: return@setOnPlaybackToggleListener
-
-            if (shouldPlay) {
-                if (state.playerState.progress > 0) {
+            when {
+                shouldPlay && state.playerState.progress > 0 -> {
                     viewModel.resumePlayer()
-                } else {
+                }
+                shouldPlay -> {
                     viewModel.play()
                 }
-            } else {
-                viewModel.pause()
+                else -> {
+                    viewModel.pause()
+                }
             }
         }
 
@@ -190,5 +192,10 @@ class TrackFragment : Fragment() {
             }
         }
         return current
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.apPlayAudioButton.clearListener()
     }
 }
