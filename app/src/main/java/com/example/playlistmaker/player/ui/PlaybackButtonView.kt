@@ -2,7 +2,6 @@ package com.example.playlistmaker.player.ui
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
@@ -73,7 +72,7 @@ class PlaybackButtonView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         currentDrawable?.let {
-            it.bounds = Rect(
+            it.setBounds(
                 imageBounds.left.toInt(),
                 imageBounds.top.toInt(),
                 imageBounds.right.toInt(),
@@ -82,4 +81,5 @@ class PlaybackButtonView @JvmOverloads constructor(
             it.draw(canvas)
         }
     }
+
 }
