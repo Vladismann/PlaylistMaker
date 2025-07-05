@@ -63,20 +63,19 @@ class TrackFragment : Fragment() {
             }
         }
 
-        binding.apPlayAudioButton.setOnClickListener {
-            if (clickDebounce()) {
-                val screenState = viewModel.getScreenStateLiveData().value
-                if (screenState is TrackScreenState.Content) {
-                    if (screenState.playerState.isPlaying) {
-                        viewModel.pause()
-                    } else {
-                        if (screenState.playerState.progress > 0) {
-                            viewModel.resumePlayer()
-                        } else {
-                            viewModel.play()
-                        }
-                    }
+        binding.apPlayAudioButton.setOnPlaybackToggleListener { shouldPlay ->
+            if (!clickDebounce()) return@setOnPlaybackToggleListener
+
+            val state = viewModel.getScreenStateLiveData().value as? TrackScreenState.Content ?: return@setOnPlaybackToggleListener
+
+            if (shouldPlay) {
+                if (state.playerState.progress > 0) {
+                    viewModel.resumePlayer()
+                } else {
+                    viewModel.play()
                 }
+            } else {
+                viewModel.pause()
             }
         }
 
@@ -178,11 +177,7 @@ class TrackFragment : Fragment() {
 
     private fun updatePlayerUI(playerState: PlayerState) {
         binding.apPlayingTime.text = playerState.currentTime
-        if (playerState.isPlaying) {
-            binding.apPlayAudioButton.setBackgroundResource(R.drawable.pause_audio_button)
-        } else {
-            binding.apPlayAudioButton.setBackgroundResource(R.drawable.play_audio_button)
-        }
+        binding.apPlayAudioButton.setPlaying(playerState.isPlaying)
     }
 
     private fun clickDebounce(): Boolean {

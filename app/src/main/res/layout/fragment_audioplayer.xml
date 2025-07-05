@@ -97,11 +97,13 @@
                 app:layout_constraintStart_toEndOf="@id/guidelineLeft"
                 app:layout_constraintTop_toBottomOf="@id/apTrackArtistName" />
 
-            <ImageButton
+            <com.example.playlistmaker.player.ui.PlaybackButtonView
                 android:id="@+id/apPlayAudioButton"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:background="@drawable/play_audio_button"
+                app:playIcon="@drawable/play_audio_button"
+                app:pauseIcon="@drawable/pause_audio_button"
+                tools:src="@drawable/play_audio_button"
                 app:layout_constraintBottom_toBottomOf="@id/apAddToPlaylistButton"
                 app:layout_constraintEnd_toStartOf="@id/apAddToFavoritesButton"
                 app:layout_constraintStart_toEndOf="@id/apAddToPlaylistButton"
