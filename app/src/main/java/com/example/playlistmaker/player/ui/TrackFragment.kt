@@ -1,11 +1,20 @@
 package com.example.playlistmaker.player.ui
 
+import android.Manifest
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -13,6 +22,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentAudioplayerBinding
+import com.example.playlistmaker.player.AudioPlayerService
+import com.example.playlistmaker.player.IAudioPlayerService
 import com.example.playlistmaker.player.view_model.PlayerState
 import com.example.playlistmaker.player.view_model.TrackScreenState
 import com.example.playlistmaker.player.view_model.TrackViewModel
@@ -29,11 +40,61 @@ class TrackFragment : Fragment() {
     private val viewModel by viewModel<TrackViewModel>()
     private var isClickAllowed = true
     private val clickDebounceDelay = 200L
+    private var audioService: IAudioPlayerService? = null
+    private var isBound = false
+
+    companion object {
+        private const val REQUEST_NOTIFICATION_PERMISSION = 1001
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permission = Manifest.permission.POST_NOTIFICATIONS
+            if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(permission), REQUEST_NOTIFICATION_PERMISSION)
+            }
+        }
+    }
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+            val playerBinder = binder as AudioPlayerService.AudioPlayerBinder
+            audioService = playerBinder.getService()
+            (audioService as? AudioPlayerService)?.initPlayer()
+            viewModel.bindService(audioService!!)
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            audioService = null
+            isBound = false
+        }
+    }
+
+    override fun onDestroy() {
+        if (isBound) {
+            requireContext().unbindService(connection)
+            isBound = false
+        }
+        super.onDestroy()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val intent = Intent(requireContext(), AudioPlayerService::class.java).apply {
+            putExtra("TRACK_NAME", viewModel.currentTrack?.trackName)
+            putExtra("ARTIST_NAME", viewModel.currentTrack?.artistName)
+            putExtra("TRACK_URL", viewModel.currentTrack?.previewUrl)
+        }
+        requireContext().startService(intent)
+        requireContext().bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentAudioplayerBinding.inflate(inflater, container, false)
+        requestNotificationPermissionIfNeeded()
         return binding.root
     }
 
@@ -42,6 +103,7 @@ class TrackFragment : Fragment() {
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                audioService?.pause()
                 findNavController().popBackStack()
             }
         })
@@ -197,5 +259,16 @@ class TrackFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         binding.apPlayAudioButton.clearListener()
+        audioService?.showNotification(false)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        audioService?.showNotification(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        audioService?.showNotification(false)
     }
 }

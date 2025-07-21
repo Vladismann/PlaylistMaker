@@ -7,7 +7,6 @@ import com.example.playlistmaker.media.view_model.CreatePlaylistViewModel
 import com.example.playlistmaker.media.view_model.FavoritesViewModel
 import com.example.playlistmaker.media.view_model.PlaylistDetailsViewModel
 import com.example.playlistmaker.media.view_model.PlaylistsViewModel
-import com.example.playlistmaker.player.domain.TrackPlayerInteractor
 import com.example.playlistmaker.player.view_model.TrackViewModel
 import com.example.playlistmaker.search.domain.api.TrackInteractor
 import com.example.playlistmaker.search.view_model.SearchViewModel
@@ -23,7 +22,7 @@ val viewModelModule = module {
     }
 
     viewModel {
-        TrackViewModel(get<TrackInteractor>(), get<TrackPlayerInteractor>(), get<FavoriteTrackInteractor>(), get<PlaylistInteractor>())
+        TrackViewModel(get<TrackInteractor>(), get<FavoriteTrackInteractor>(), get<PlaylistInteractor>())
     }
 
     viewModel {

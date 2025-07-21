@@ -8,31 +8,24 @@ import com.example.playlistmaker.media.domain.db.FavoriteTrackInteractor
 import com.example.playlistmaker.media.domain.db.PlaylistInteractor
 import com.example.playlistmaker.media.domain.models.Playlist
 import com.example.playlistmaker.media.domain.models.PlaylistTrack
-import com.example.playlistmaker.player.domain.TrackPlayer
-import com.example.playlistmaker.player.domain.TrackPlayerInteractor
+import com.example.playlistmaker.player.IAudioPlayerService
 import com.example.playlistmaker.search.domain.api.TrackInteractor
 import com.example.playlistmaker.search.domain.models.Track
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class TrackViewModel(
     tracksInteractor: TrackInteractor,
-    private val trackPlayer: TrackPlayerInteractor,
     private val favoriteTrackInteractor: FavoriteTrackInteractor,
     private val playlistInteractor: PlaylistInteractor
 ) : ViewModel() {
 
     private val screenStateLiveData = MutableLiveData<TrackScreenState>(TrackScreenState.Loading)
-    private var updateTimeJob: Job? = null
 
     private var isPaused = false
     private val track: Track? = tracksInteractor.readTrackForAudioPlayer()
+
+    private var audioService: IAudioPlayerService? = null
 
     init {
         val currentTrack = track
@@ -43,49 +36,40 @@ class TrackViewModel(
                 screenStateLiveData.postValue(TrackScreenState.Content(track!!))
             }
         }
+    }
 
-        trackPlayer.setStatusObserver(object : TrackPlayer.StatusObserver {
-            override fun onStop() {
-                updatePlayerState { it.copy(isPlaying = false, progress = 0, currentTime = "00:00") }
-                updateTimeJob?.cancel()
-                isPaused = false
-            }
+    val currentTrack: Track?
+        get() = track
 
-            override fun onPlay() {
-                trackPlayer.startPlayer()
-                updatePlayerState { it.copy(isPlaying = true) }
-                startUpdateTimeJob()
-                isPaused = false
+    fun bindService(service: IAudioPlayerService) {
+        audioService = service
+        audioService?.setObserver { playerState ->
+            updatePlayerState { oldState ->
+                oldState.copy(
+                    isPlaying = playerState.isPlaying,
+                    progress = playerState.progress,
+                    currentTime = playerState.currentTime
+                )
             }
-
-            override fun onResume() {
-                updatePlayerState { it.copy(isPlaying = true) }
-                startUpdateTimeJob()
-                isPaused = false
-            }
-        })
+        }
     }
 
     fun getScreenStateLiveData(): LiveData<TrackScreenState> = screenStateLiveData
 
     fun play() {
-        trackPlayer.preparePlayer(track?.previewUrl)
-        trackPlayer.startPlayer()
+        audioService?.prepareAndPlay(track?.previewUrl)
+        isPaused = false
     }
 
     fun pause() {
-        trackPlayer.pausePlayer()
-        updateTimeJob?.cancel()
-        updatePlayerState { it.copy(isPlaying = false, progress = trackPlayer.getCurrentPosition()) }
+        audioService?.pause()
         isPaused = true
     }
 
     fun resumePlayer() {
         if (isPaused) {
             isPaused = false
-            trackPlayer.resumePlayer()
-            startUpdateTimeJob()
-            updatePlayerState { it.copy(isPlaying = true, progress = trackPlayer.getCurrentPosition()) }
+            audioService?.resume()
         }
     }
 
@@ -96,22 +80,9 @@ class TrackViewModel(
         }
     }
 
-    private fun startUpdateTimeJob() {
-        updateTimeJob?.cancel()
-        updateTimeJob = viewModelScope.launch(Dispatchers.Main) {
-            while (true) {
-                val currentPosition = trackPlayer.getCurrentPosition()
-                val timeString = SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(currentPosition.toLong()))
-                updatePlayerState { it.copy(currentTime = timeString) }
-
-                delay(300)
-            }
-        }
-    }
-
     override fun onCleared() {
-        updateTimeJob?.cancel()
-        trackPlayer.releasePlayer()
+        super.onCleared()
+        audioService = null
     }
 
     suspend fun onFavoriteClicked() {
