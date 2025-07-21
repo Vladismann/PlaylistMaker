@@ -10,4 +10,5 @@ interface TrackPlayerInteractor {
     fun resumePlayer()
     fun getCurrentPosition(): Int
     fun setStatusObserver(observer: StatusObserver)
+    fun isPlaying() : Boolean
 }

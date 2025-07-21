@@ -1,7 +1,10 @@
 package com.example.playlistmaker.player
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Binder
@@ -36,6 +39,8 @@ class AudioPlayerService() : Service(), IAudioPlayerService {
 
     companion object {
         private const val NOTIFICATION_ID = 1
+        const val NOTIFICATION_CHANNEL_ID = "audio_player_channel"
+        private const val CHANNEL_NAME = "Audio Player"
     }
 
     inner class AudioPlayerBinder : Binder() {
@@ -49,8 +54,30 @@ class AudioPlayerService() : Service(), IAudioPlayerService {
         return binder
     }
 
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID,
+            CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        channel.description = "Service for playing music"
+        channel.setSound(null, null)
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+    }
+
+
     override fun showNotification(shouldShow : Boolean) {
-        if (shouldShow && !isPaused) {
+        if (shouldShow && trackPlayer.isPlaying()) {
             ServiceCompat.startForeground(
                 this,
                 NOTIFICATION_ID,
@@ -146,7 +173,7 @@ class AudioPlayerService() : Service(), IAudioPlayerService {
     }
 
     private fun createServiceNotification(): Notification {
-        val builder = NotificationCompat.Builder(this, "audio_channel")
+        val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(trackName ?: "Трек")
             .setContentText(artistName ?: "Исполнитель")
             .setSmallIcon(R.drawable.media_svg)
