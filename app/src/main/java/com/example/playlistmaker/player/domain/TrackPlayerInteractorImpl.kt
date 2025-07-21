@@ -29,4 +29,8 @@ class TrackPlayerInteractorImpl(private val repository: TrackPlayer)  : TrackPla
     override fun setStatusObserver(observer: TrackPlayer.StatusObserver) {
         repository.setStatusObserver(observer)
     }
+
+    override fun isPlaying(): Boolean {
+        return repository.isPlaying()
+    }
 }

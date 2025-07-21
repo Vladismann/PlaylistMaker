@@ -35,6 +35,10 @@ class TrackPlayerImpl(private var mediaPlayer: MediaPlayer) : TrackPlayer {
         }
     }
 
+    override fun isPlaying() : Boolean {
+        return mediaPlayer.isPlaying
+    }
+
     override fun startPlayer() {
         if (playerState == STATE_PREPARED) {
             mediaPlayer.seekTo(0)
