@@ -10,7 +10,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,14 +23,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -43,7 +39,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -61,6 +56,8 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.search.domain.models.Track
 import com.example.playlistmaker.search.view_model.SearchScreenState
 import com.example.playlistmaker.search.view_model.SearchViewModel
+import com.example.playlistmaker.universalUiComponents.ActionButton
+import com.example.playlistmaker.universalUiComponents.CustomTopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -137,18 +134,7 @@ class SearchFragmentCompose : Fragment() {
                 .fillMaxSize()
                 .background(colorResource(R.color.defaultBackground))
         ) {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.search),
-                        fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                        fontSize = dimensionResource(R.dimen.default_text_size).value.sp,
-                        color = colorResource(R.color.defaultTextColor)
-                    )
-                },
-                backgroundColor = Color.Transparent,
-                elevation = 0.dp
-            )
+            CustomTopBar(titleText = stringResource(R.string.search))
 
             SearchInput(
                 query = query,
@@ -243,28 +229,14 @@ class SearchFragmentCompose : Fragment() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 24.dp)
+                        .weight(1f)
                 ) {
                     items(state.historyTracks) { track ->
                         TrackItem(track = track, onClick = { onHistoryTrackClick(track) })
                     }
-                }
-                Button(
-                    onClick = onClearHistory,
-                    colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(R.color.defaultTextColor)),
-                    shape = RoundedCornerShape(54.dp),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 24.dp, bottom = 16.dp)
-                        .height(40.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.clear_search),
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                        color = colorResource(R.color.defaultBackground),
-                        letterSpacing = 0.sp
-                    )
+                    item {
+                        ActionButton(onClick = onClearHistory, text = stringResource(R.string.clear_search))
+                    }
                 }
             }
         }
@@ -357,27 +329,7 @@ class SearchFragmentCompose : Fragment() {
                 textAlign = TextAlign.Center
             )
             if (showRetry) {
-                Button(
-                    onClick = onRetry,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 24.dp, bottom = 16.dp)
-                        .height(40.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = colorResource(R.color.defaultTextColor)
-                    ),
-                    shape = RoundedCornerShape(54.dp),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.refresh),
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                        color = colorResource(R.color.defaultBackground),
-                        textAlign = TextAlign.Center,
-                        letterSpacing = 0.sp
-                    )
-                }
+                ActionButton(onClick = onRetry, text = stringResource(R.string.refresh))
             }
         }
     }

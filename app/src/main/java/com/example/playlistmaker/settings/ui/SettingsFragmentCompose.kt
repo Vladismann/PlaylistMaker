@@ -21,7 +21,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -40,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import com.example.playlistmaker.R
 import com.example.playlistmaker.settings.view_model.SettingsViewModel
+import com.example.playlistmaker.universalUiComponents.CustomTopBar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragmentCompose : Fragment() {
@@ -61,18 +60,7 @@ class SettingsFragmentCompose : Fragment() {
                         .fillMaxSize()
                         .background(color = colorResource(id = R.color.defaultBackground))
                 ) {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = stringResource(R.string.settings),
-                                fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                                fontSize = dimensionResource(R.dimen.default_text_size).value.sp,
-                                color = colorResource(R.color.defaultTextColor)
-                            )
-                        },
-                        backgroundColor = Color.Transparent,
-                        elevation = 0.dp
-                    )
+                    CustomTopBar(titleText = stringResource(R.string.settings))
 
                     Spacer(modifier = Modifier.height(20.dp))
 
