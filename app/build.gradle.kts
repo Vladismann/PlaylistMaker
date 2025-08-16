@@ -8,6 +8,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        compose = true
     }
 
     namespace = "com.example.playlistmaker"
@@ -39,6 +40,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8" // версия совместимая с Kotlin 1.9.22
+    }
 }
 
 dependencies {
@@ -62,4 +66,10 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.6")
     implementation ("androidx.navigation:navigation-fragment-ktx:2.8.9")
     implementation ("androidx.navigation:navigation-ui-ktx:2.8.9")
+
+    implementation ("androidx.compose.ui:ui:1.6.1")
+    implementation ("androidx.compose.material:material:1.6.1")
+    implementation ("androidx.activity:activity-compose:1.8.2")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.4")
 }

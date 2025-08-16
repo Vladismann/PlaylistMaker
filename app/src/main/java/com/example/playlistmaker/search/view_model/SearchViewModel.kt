@@ -1,5 +1,6 @@
 package com.example.playlistmaker.search.view_model
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,37 +22,44 @@ class SearchViewModel(private val trackInteractor: TrackInteractor) : ViewModel(
     private val screenState = MutableLiveData<SearchScreenState>(SearchScreenState.Loading)
     val searchScreenState: LiveData<SearchScreenState> = screenState
 
+    var query = mutableStateOf("")
+        private set
+
+
     init {
         loadSearchHistory()
     }
 
     private fun searchTracks(query: String) {
         viewModelScope.launch {
-            if (query.isNotBlank()) {
-                screenState.value = SearchScreenState.Loading
-            }
+
+            screenState.value = SearchScreenState.Loading
+
 
             trackInteractor.searchTracks(query).collect { actualResult ->
-                    if (query.isBlank()) {
-                        loadSearchHistory()
-                    } else if (actualResult.isError) {
-                        screenState.value = SearchScreenState.Error(showRefresh = true)
-                    } else {
-                        val currentHistory = when (val state = screenState.value) {
-                            is SearchScreenState.Content -> state.historyTracks
-                            else -> emptyList()
-                        }
-
-                        screenState.value = SearchScreenState.Content(tracks = actualResult.tracks,
-                            historyTracks = currentHistory,
-                            query = query)
+                if (query.isBlank()) {
+                    delay(300)
+                    loadSearchHistory()
+                } else if (actualResult.isError) {
+                    screenState.value = SearchScreenState.Error(showRefresh = true)
+                } else {
+                    val currentHistory = when (val state = screenState.value) {
+                        is SearchScreenState.Content -> state.historyTracks
+                        else -> emptyList()
                     }
+
+                    screenState.value = SearchScreenState.Content(
+                        tracks = actualResult.tracks,
+                        historyTracks = currentHistory,
+                        query = query
+                    )
                 }
+            }
         }
     }
 
     private var searchJob: Job? = null
-    private var lastQuery = ""
+    var lastQuery = ""
 
     fun searchDebounce(query: String) {
         if (query == lastQuery && screenState.value !is SearchScreenState.Error && screenState.value != null) {
