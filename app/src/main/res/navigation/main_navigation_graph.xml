@@ -56,7 +56,7 @@
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.playlistmaker.settings.ui.SettingsFragment"
+        android:name="com.example.playlistmaker.settings.ui.SettingsFragmentCompose"
         android:label="SettingsFragment" />
 
     <fragment
