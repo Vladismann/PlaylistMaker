@@ -138,10 +138,12 @@ class PlaylistsFragmentCompose : Fragment() {
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(playlists) { playlist ->
-                        PlaylistItem(
-                            playlist = playlist,
-                            onClick = { onPlaylistClick(playlist.playlistId ?: -1L) }
-                        )
+                        playlist.playlistId?.let { id ->
+                            PlaylistItem(
+                                playlist = playlist,
+                                onClick = { onPlaylistClick(id) }
+                            )
+                        }
                     }
                 }
             }

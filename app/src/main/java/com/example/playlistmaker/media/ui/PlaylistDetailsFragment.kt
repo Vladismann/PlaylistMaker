@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -24,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
 
 class PlaylistDetailsFragment : Fragment() {
 
@@ -102,11 +102,12 @@ class PlaylistDetailsFragment : Fragment() {
 
     private fun loadTrackInfo(screenState: PlaylistDetailsScreenState.Content) {
         if (!screenState.playlist?.playlistImageUrl.isNullOrEmpty()) {
+            val imageFile = File(screenState.playlist?.playlistImageUrl ?: "")
             Glide.with(this@PlaylistDetailsFragment)
-                .load(screenState.playlist?.playlistImageUrl?.toUri())
+                .load(imageFile)
                 .placeholder(R.drawable.placeholder_full_size).into(binding.plPlaylistImage)
             Glide.with(this@PlaylistDetailsFragment)
-                .load(screenState.playlist?.playlistImageUrl?.toUri())
+                .load(imageFile)
                 .placeholder(R.drawable.placeholder_full_size).into(itemBinding.rvSmPlaylistImage)
         } else {
             binding.plPlaylistImage.setImageResource(R.drawable.placeholder_full_size)

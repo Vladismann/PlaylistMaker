@@ -19,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
 import com.example.playlistmaker.media.view_model.CreatePlaylistViewModel
@@ -68,7 +69,10 @@ open class CreatePlaylistFragment : Fragment() {
 
         val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
-                binding.image.setImageURI(uri)
+                Glide.with(this)
+                    .load(uri)
+                    .centerCrop()
+                    .into(binding.image)
                 saveImageToPrivateStorage(uri)
             }
         }

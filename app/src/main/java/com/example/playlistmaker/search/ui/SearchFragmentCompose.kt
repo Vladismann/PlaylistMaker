@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -74,7 +73,7 @@ class SearchFragmentCompose : Fragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                MaterialTheme {
+
                     SearchScreen(
                         viewModel = viewModel,
                         onTrackClick = ::handleTrackClick,
@@ -83,7 +82,6 @@ class SearchFragmentCompose : Fragment() {
                         onRetry = { viewModel.searchDebounce(viewModel.lastQuery) },
                         onClearSearch = { viewModel.searchDebounce("") }
                     )
-                }
             }
         }
     }
@@ -93,7 +91,7 @@ class SearchFragmentCompose : Fragment() {
             viewModel.saveTrackToHistory(track)
             viewModel.saveForAudioPlayer(track)
             viewLifecycleOwner.lifecycleScope.launch {
-                delay(1000)
+                delay(clickDebounceDelay)
                 findNavController().navigate(R.id.action_global_to_trackFragment)
             }
         }
@@ -212,7 +210,6 @@ class SearchFragmentCompose : Fragment() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 24.dp)
-                        .weight(1f)
                 ) {
                     items(state.historyTracks) { track ->
                         TrackItem(track = track, onClick = { onHistoryTrackClick(track) })

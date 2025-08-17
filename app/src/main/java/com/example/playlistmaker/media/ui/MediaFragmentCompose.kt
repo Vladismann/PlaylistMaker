@@ -18,6 +18,7 @@ import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -98,11 +99,12 @@ class MediaFragmentCompose : Fragment() {
 
     @Composable
     fun FragmentContainer(fragment: () -> Fragment) {
+        val fragmentContainerId = remember { View.generateViewId() }
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
                 FragmentContainerView(context).apply {
-                    id = View.generateViewId()
+                    id = fragmentContainerId
                     (context as AppCompatActivity).supportFragmentManager
                         .beginTransaction()
                         .replace(id, fragment())
