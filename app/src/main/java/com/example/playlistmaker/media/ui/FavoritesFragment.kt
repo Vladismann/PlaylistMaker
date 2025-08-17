@@ -68,6 +68,7 @@ class FavoritesFragment : Fragment() {
 
         (binding.fRvTrack.adapter as TrackAdapter).setOnItemClickListener { track ->
             if (clickDebounce()) {
+                binding.fRvTrack.visibility = View.GONE
                 binding.searchProgressBar.visibility = View.VISIBLE
                 startTrackFragment(track)
             }
@@ -78,7 +79,7 @@ class FavoritesFragment : Fragment() {
     private fun startTrackFragment(track: Track) {
         viewModel.saveForAudioPlayer(track)
         viewLifecycleOwner.lifecycleScope.launch {
-            delay(1000)
+            delay(clickDebounceDelay)
             val navController = findNavController()
             navController.navigate(R.id.action_global_to_trackFragment)
         }
