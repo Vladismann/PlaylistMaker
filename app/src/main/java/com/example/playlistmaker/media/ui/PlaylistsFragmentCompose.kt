@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,9 +24,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -171,7 +174,7 @@ class PlaylistsFragmentCompose : Fragment() {
             modifier = Modifier
                 .padding(4.dp)
                 .width(160.dp)
-                .clickable { onClick() },
+                .clickable(onClick = onClick, indication = rememberRipple(bounded = true), interactionSource = remember { MutableInteractionSource() }),
             elevation = 0.dp,
             backgroundColor = colorResource(id = R.color.defaultBackground)
         ) {
