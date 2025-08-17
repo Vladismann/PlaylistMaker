@@ -160,7 +160,8 @@ class SearchFragmentCompose : Fragment() {
                         icon = painterResource(R.drawable.track_search_error),
                         text = stringResource(R.string.connection_error),
                         showRetry = error.showRefresh,
-                        onRetry = onRetry
+                        onRetry = onRetry,
+                        modifier = Modifier.padding(top = 100.dp).fillMaxWidth()
                     )
                 }
             }
@@ -180,7 +181,8 @@ class SearchFragmentCompose : Fragment() {
                 icon = painterResource(R.drawable.track_not_found),
                 text = stringResource(R.string.nothing_found),
                 showRetry = false,
-                onRetry = {}
+                onRetry = {},
+                modifier = Modifier.padding(top = 100.dp).fillMaxWidth()
             )
         } else {
             LazyColumn(

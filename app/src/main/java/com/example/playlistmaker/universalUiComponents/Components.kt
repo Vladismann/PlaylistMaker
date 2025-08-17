@@ -111,31 +111,33 @@ fun TrackItem(track: Track, onClick: () -> Unit) {
 }
 
 @Composable
-fun ErrorView(icon: Painter, text: String, showRetry: Boolean, onRetry: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),   // занимаем всё пространство
-        contentAlignment = Alignment.Center  // и центрируем содержимое
+fun ErrorView(
+    icon: Painter,
+    text: String,
+    showRetry: Boolean,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                painter = icon,
-                contentDescription = null,
-                modifier = Modifier.size(120.dp),
-                tint = Color.Unspecified
-            )
-            Text(
-                text = text,
-                modifier = Modifier.padding(top = 16.dp),
-                color = colorResource(R.color.defaultTextColor),
-                fontFamily = FontFamily(Font(R.font.ys_display_medium)),
-                fontSize = 19.sp,
-                textAlign = TextAlign.Center
-            )
-            if (showRetry) {
-                ActionButton(onClick = onRetry, text = stringResource(R.string.refresh))
-            }
+        Icon(
+            painter = icon,
+            contentDescription = null,
+            modifier = Modifier.size(120.dp),
+            tint = Color.Unspecified
+        )
+        Text(
+            text = text,
+            modifier = Modifier.padding(top = 16.dp),
+            color = colorResource(R.color.defaultTextColor),
+            fontFamily = FontFamily(Font(R.font.ys_display_medium)),
+            fontSize = 19.sp,
+            textAlign = TextAlign.Center
+        )
+        if (showRetry) {
+            ActionButton(onClick = onRetry, text = stringResource(R.string.refresh))
         }
     }
 }

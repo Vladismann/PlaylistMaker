@@ -72,4 +72,5 @@ dependencies {
     implementation ("androidx.activity:activity-compose:1.8.2")
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.4")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }

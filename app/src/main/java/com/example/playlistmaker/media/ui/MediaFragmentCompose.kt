@@ -90,7 +90,7 @@ class MediaFragmentCompose : Fragment() {
             ) { page ->
                 when (page) {
                     0 -> FragmentContainer(fragment = { FavoritesFragmentCompose() })
-                    1 -> FragmentContainer(fragment = { PlaylistsFragment() })
+                    1 -> FragmentContainer(fragment = { PlaylistsFragmentCompose() })
                 }
             }
         }

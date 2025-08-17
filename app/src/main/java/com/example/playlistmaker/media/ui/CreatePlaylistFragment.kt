@@ -114,7 +114,7 @@ open class CreatePlaylistFragment : Fragment() {
         BitmapFactory.decodeStream(inputStream).compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
         inputStream?.close()
         outputStream.close()
-        viewModel.onImagePathChanged(uri.toString())
+        viewModel.onImagePathChanged(file.absolutePath)
     }
 
     private fun showExitConfirmationDialog() {
