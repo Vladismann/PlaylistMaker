@@ -30,7 +30,7 @@ class PlaylistsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPlaylistsBinding.inflate(inflater, container, false)
         binding.createPlaylist.setOnClickListener {
-            requireParentFragment().requireParentFragment().findNavController()?.navigate(R.id.action_media_to_newPlaylist)
+            requireParentFragment().requireParentFragment().findNavController().navigate(R.id.action_media_to_newPlaylist)
         }
         return binding.root
     }
@@ -69,7 +69,7 @@ class PlaylistsFragment : Fragment() {
             val bundle = Bundle().apply {
                 putLong("playlistId", playlist.playlistId ?: -1L)
             }
-            requireParentFragment().requireParentFragment().findNavController()?.navigate(R.id.action_media_to_playlistDetails, bundle)
+            findNavController().navigate(R.id.action_media_to_playlistDetails, bundle)
         }
 
     }

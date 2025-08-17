@@ -89,7 +89,7 @@ class MediaFragmentCompose : Fragment() {
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 when (page) {
-                    0 -> FragmentContainer(fragment = { FavoritesFragment() })
+                    0 -> FragmentContainer(fragment = { FavoritesFragmentCompose() })
                     1 -> FragmentContainer(fragment = { PlaylistsFragment() })
                 }
             }
