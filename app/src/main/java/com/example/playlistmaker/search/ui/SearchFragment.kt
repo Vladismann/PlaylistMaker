@@ -174,7 +174,7 @@ class SearchFragment : Fragment() {
     private fun startTrackFragment(track: Track) {
         viewModel.saveForAudioPlayer(track)
         viewLifecycleOwner.lifecycleScope.launch {
-            delay(1000)
+            delay(clickDebounceDelay)
             val navController = findNavController()
             navController.navigate(R.id.action_global_to_trackFragment)
         }
