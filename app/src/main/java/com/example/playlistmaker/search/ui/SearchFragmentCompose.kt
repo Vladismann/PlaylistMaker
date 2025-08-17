@@ -1,0 +1,294 @@
+package com.example.playlistmaker.search.ui
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.example.playlistmaker.R
+import com.example.playlistmaker.search.domain.models.Track
+import com.example.playlistmaker.search.view_model.SearchScreenState
+import com.example.playlistmaker.search.view_model.SearchViewModel
+import com.example.playlistmaker.universalUiComponents.ActionButton
+import com.example.playlistmaker.universalUiComponents.CustomTopBar
+import com.example.playlistmaker.universalUiComponents.ErrorView
+import com.example.playlistmaker.universalUiComponents.LoadingIndicator
+import com.example.playlistmaker.universalUiComponents.TrackItem
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
+
+class SearchFragmentCompose : Fragment() {
+
+    private var isClickAllowed = true
+    private val clickDebounceDelay = 1000L
+    private val viewModel by viewModel<SearchViewModel>()
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                requireActivity().finishAffinity()
+            }
+        })
+
+        return ComposeView(requireContext()).apply {
+            setContent {
+
+                    SearchScreen(
+                        viewModel = viewModel,
+                        onTrackClick = ::handleTrackClick,
+                        onHistoryTrackClick = ::handleTrackClick,
+                        onClearHistory = viewModel::clearHistory,
+                        onRetry = { viewModel.searchDebounce(viewModel.lastQuery) },
+                        onClearSearch = { viewModel.searchDebounce("") }
+                    )
+            }
+        }
+    }
+
+    private fun handleTrackClick(track: Track) {
+        if (clickDebounce()) {
+            viewModel.saveTrackToHistory(track)
+            viewModel.saveForAudioPlayer(track)
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(clickDebounceDelay)
+                findNavController().navigate(R.id.action_global_to_trackFragment)
+            }
+        }
+    }
+
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(clickDebounceDelay)
+                isClickAllowed = true
+            }
+        }
+        return current
+    }
+
+    @Composable
+    fun SearchScreen(
+        viewModel: SearchViewModel,
+        onTrackClick: (Track) -> Unit,
+        onHistoryTrackClick: (Track) -> Unit,
+        onClearHistory: () -> Unit,
+        onRetry: () -> Unit,
+        onClearSearch: () -> Unit
+    ) {
+        val state by viewModel.searchScreenState.observeAsState(SearchScreenState.Content(emptyList(), emptyList(), ""))
+        var query by viewModel.query
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorResource(R.color.defaultBackground))
+        ) {
+            CustomTopBar(titleText = stringResource(R.string.search))
+
+            SearchInput(
+                query = query,
+                onQueryChange = { newQuery ->
+                    query = newQuery
+                    viewModel.searchDebounce(newQuery)
+                },
+                onClearSearch = {
+                    query = ""
+                    onClearSearch()
+                    viewModel.searchDebounce(query)
+                },
+                onDone = {}
+            )
+
+            when (state) {
+                is SearchScreenState.Loading -> LoadingIndicator()
+                is SearchScreenState.Content -> SearchContent(
+                    state = state as SearchScreenState.Content,
+                    query = query,
+                    onTrackClick = onTrackClick,
+                    onHistoryTrackClick = onHistoryTrackClick,
+                    onClearHistory = onClearHistory
+                )
+
+                is SearchScreenState.Error -> {
+                    val error = state as SearchScreenState.Error
+                    ErrorView(
+                        icon = painterResource(R.drawable.track_search_error),
+                        text = stringResource(R.string.connection_error),
+                        showRetry = error.showRefresh,
+                        onRetry = onRetry,
+                        modifier = Modifier.padding(top = 100.dp).fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun SearchContent(
+        state: SearchScreenState.Content,
+        query: String,
+        onTrackClick: (Track) -> Unit,
+        onHistoryTrackClick: (Track) -> Unit,
+        onClearHistory: () -> Unit
+    ) {
+        if (state.tracks.isEmpty() && state.query.isNotBlank()) {
+            ErrorView(
+                icon = painterResource(R.drawable.track_not_found),
+                text = stringResource(R.string.nothing_found),
+                showRetry = false,
+                onRetry = {},
+                modifier = Modifier.padding(top = 100.dp).fillMaxWidth()
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp)
+            ) {
+                items(state.tracks) { track ->
+                    TrackItem(track = track, onClick = { onTrackClick(track) })
+                }
+            }
+        }
+
+        if (query.isEmpty() && state.historyTracks.isNotEmpty()) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.search_history_header),
+                    color = colorResource(R.color.defaultTextColor),
+                    fontFamily = FontFamily(Font(R.font.ys_display_medium)),
+                    fontSize = 19.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp)
+                ) {
+                    items(state.historyTracks) { track ->
+                        TrackItem(track = track, onClick = { onHistoryTrackClick(track) })
+                    }
+                    item {
+                        ActionButton(onClick = onClearHistory, text = stringResource(R.string.clear_search))
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun SearchInput(
+        query: String,
+        onQueryChange: (String) -> Unit,
+        onClearSearch: () -> Unit,
+        onDone: () -> Unit
+    ) {
+        Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(36.dp)
+                    .background(
+                        color = colorResource(R.color.searchPageInput),
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.search_small_svg),
+                        contentDescription = "Search",
+                        tint = colorResource(R.color.searchPagePlaceholder),
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (query.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.search),
+                                color = colorResource(R.color.searchPagePlaceholder),
+                                fontFamily = FontFamily(Font(R.font.ys_display_regular)),
+                                fontSize = 14.sp,
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
+                        }
+                        BasicTextField(
+                            value = query,
+                            onValueChange = onQueryChange,
+                            singleLine = true,
+                            textStyle = androidx.compose.ui.text.TextStyle(
+                                color = colorResource(R.color.YP_Black),
+                                fontFamily = FontFamily(Font(R.font.ys_display_regular)),
+                                fontSize = 14.sp
+                            ),
+                            cursorBrush = SolidColor(colorResource(R.color.YP_Blue)),
+                            keyboardActions = KeyboardActions(onDone = { onDone() }),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterStart)
+                        )
+                    }
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = onClearSearch) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_close),
+                                contentDescription = "Clear",
+                                tint = colorResource(R.color.searchPagePlaceholder)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

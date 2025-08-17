@@ -5,7 +5,7 @@
     app:startDestination="@id/searchFragment">
     <fragment
         android:id="@+id/searchFragment"
-        android:name="com.example.playlistmaker.search.ui.SearchFragment"
+        android:name="com.example.playlistmaker.search.ui.SearchFragmentCompose"
         android:label="SearchFragment">
         <action
             android:id="@+id/action_searchFragment_to_trackFragment"
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/mediaFragment"
-        android:name="com.example.playlistmaker.media.ui.MediaFragment"
+        android:name="com.example.playlistmaker.media.ui.MediaFragmentCompose"
         android:label="MediaFragment">
         <action
             android:id="@+id/action_media_to_newPlaylist"
@@ -56,7 +56,7 @@
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.playlistmaker.settings.ui.SettingsFragment"
+        android:name="com.example.playlistmaker.settings.ui.SettingsFragmentCompose"
         android:label="SettingsFragment" />
 
     <fragment
